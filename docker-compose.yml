@@ -1,0 +1,34 @@
+version: '3'
+services:
+  nats-server:
+    image: nats:latest
+    ports:
+      - 8222:8222
+
+  auth-ms:
+    depends_on:
+      - nats-server
+    build: ./auth-ms
+    volumes:
+      - ./auth-ms/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3005
+      - NATS_SERVERS=${NATS_SERVERS}
+      - DATABASE_URL=${AUTH_DATABASE_URL}
+      - JWT_SECRET_ACCESS=${JWT_SECRET_ACCESS}
+      - JWT_SECRET_REFRESH=${JWT_SECRET_REFRESH}
+      - JWT_SECRET_RESET_PASSWORD=${JWT_SECRET_RESET_PASSWORD}
+  
+  user-ms:
+    depends_on:
+      - nats-server
+    build: ./user-ms
+    volumes:
+      - ./user-ms/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3004
+      - NATS_SERVERS=${NATS_SERVERS}
+      - DATABASE_URL=${USER_DATABASE_URL}
+
