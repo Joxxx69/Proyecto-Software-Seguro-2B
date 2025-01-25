@@ -22,14 +22,16 @@ for dir in "$BASE_DIR"/*; do
     if [ -f "package.json" ]; then
       echo "Instalando dependencias en $folder_name..."
       # Instalar las dependencias necesarias
-      npm install nats 
-      npm install dotenv 
-      npm install joi 
-      npm install class-transformer 
-      npm install class-validator 
-      npm install @nestjs/microservices@10.4.4 
-      npm install @prisma/client
-      npm install -D prisma
+      #npm install nats 
+      #npm install dotenv 
+      #npm install joi 
+      #npm install class-transformer 
+      #npm install class-validator 
+      #npm install @nestjs/microservices@10.4.4 
+      #npm install @prisma/client
+      #npm install -D prisma
+
+      npx prisma init
     else
       echo "No se encontró package.json en $folder_name. Saltando..."
     fi
