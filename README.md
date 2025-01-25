@@ -37,3 +37,10 @@ nest g res nombre-modulo --no-spec
 ```
 
 Este comando generará un módulo de tipo resource (recurso), que incluye un controlador, servicio y el módulo correspondiente, sin los archivos de prueba (ya que hemos utilizado la opción --no-spec).
+
+![alt text](image.png)
+![alt text](image-1.png)
+
+
+Al generar el modulo deben ir al archivo .module de lo que crearon y agregar NatsModule
+![alt text](image-2.png)
