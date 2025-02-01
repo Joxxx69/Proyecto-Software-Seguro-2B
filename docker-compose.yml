@@ -31,3 +31,17 @@ services:
       - NATS_SERVERS=${NATS_SERVERS}
       - DATABASE_URL=${USER_DATABASE_URL}
 
+    client-gateway:
+      depends_on:
+        - nats-server
+      build: ./client-gateway
+      ports:
+        - ${CLIENT_GATEWAY_PORT}:3002
+      volumes:
+        - ./client-gateway/src:/usr/src/app/src
+      command: npm run start:dev
+      environment:
+        - PORT=3002
+        - NATS_SERVERS=${NATS_SERVERS}
+        - NODE_ENV=${NODE_ENV}
+
