@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { TransparencyModule } from './transparency/transparency.module';
 
 
 @Module({
-  imports: [],
+  imports: [TransparencyModule],
   controllers: [],
   providers: [],
 })

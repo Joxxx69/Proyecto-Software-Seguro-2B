@@ -2,9 +2,9 @@ import { CanActivate, ExecutionContext, ForbiddenException, Inject, Unauthorized
 import { ClientProxy } from "@nestjs/microservices";
 import { Request } from "express";
 import { firstValueFrom } from "rxjs";
-import { NATS_SERVICE } from "src/config";
 import { Reflector } from "@nestjs/core";
 import { ROLES_KEY } from "../decorators/roles.decorator";
+import { NATS_SERVICE } from "src/config/services.config";
 
 
 

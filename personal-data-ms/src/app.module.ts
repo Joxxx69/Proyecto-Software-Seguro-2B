@@ -1,8 +1,9 @@
 import { Module } from '@nestjs/common';
+import { PersonalDataModule } from './personal-data/personal-data.module';
 
 
 @Module({
-  imports: [],
+  imports: [PersonalDataModule],
   controllers: [],
   providers: [],
 })

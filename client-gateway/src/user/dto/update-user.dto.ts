@@ -1,8 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateUserDto } from './create-user.dto';
-import { ArrayUnique, IsArray, IsDate, IsEnum, IsMongoId, isMongoId, IsNumber, IsOptional, IsString, Matches } from 'class-validator';
-import {  Gender } from "../enums/user.enum"
-import { Type } from "class-transformer";
+import { Gender } from 'src/common/enums/gender.enum';
+import { IsDate, IsEnum, IsNumber, IsOptional } from 'class-validator';
 
 export class UpdateUserDto extends PartialType(CreateUserDto) {
   

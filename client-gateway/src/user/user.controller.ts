@@ -3,11 +3,11 @@ import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { NATS_SERVICE } from '../config/services.config';
 import { UpdateUserDto } from './dto/update-user.dto';
 import { firstValueFrom } from 'rxjs';
-import { PaginationDto } from 'src/common';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enum/roles.enum';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
 import { MongoIdDto } from './dto/mongo-id.dto';
+import { PaginationDto } from 'src/common/dto/pagination.dto';
 
 @Controller('user')
 export class UserController {

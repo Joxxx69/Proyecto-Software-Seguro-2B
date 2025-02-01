@@ -1,9 +1,9 @@
 import { CanActivate, ExecutionContext, ForbiddenException, Inject, Injectable, UnauthorizedException } from "@nestjs/common";
 import { ROLES_KEY } from "../decorators/roles.decorator";
-import { NATS_SERVICE } from "src/config";
 import { ClientProxy, RpcException } from "@nestjs/microservices";
 import { Reflector } from "@nestjs/core";
 import { firstValueFrom } from "rxjs";
+import { NATS_SERVICE } from "src/config/services.config";
 
 
 @Injectable()
