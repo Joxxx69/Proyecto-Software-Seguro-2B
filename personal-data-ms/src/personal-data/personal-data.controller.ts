@@ -1,35 +1,38 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PersonalDataService } from './personal-data.service';
-import { CreatePersonalDatumDto } from './dto/create-personal-datum.dto';
-import { UpdatePersonalDatumDto } from './dto/update-personal-datum.dto';
+import { CreatePersonalDataDto} from './dto/create-personal-data.dto';
+import { UpdatePersonalDataDto } from './dto/update-personal-data.dto';
+import { PaginationDto } from './dto/pagination.dto';
+import { MongoIdDto } from './dto/mongo-id.dto';
+
 
 @Controller()
 export class PersonalDataController {
   constructor(private readonly personalDataService: PersonalDataService) {}
 
-  @MessagePattern('createPersonalDatum')
-  create(@Payload() createPersonalDatumDto: CreatePersonalDatumDto) {
-    return this.personalDataService.create(createPersonalDatumDto);
+  @MessagePattern('create.personal.data')
+  create(@Payload() createDto: CreatePersonalDataDto) {
+    return this.personalDataService.create(createDto);
   }
 
-  @MessagePattern('findAllPersonalData')
-  findAll() {
-    return this.personalDataService.findAll();
+  @MessagePattern('find.all.personal.data')
+  findAll(@Payload() paginationDto: PaginationDto) {
+    return this.personalDataService.findAll(paginationDto);
   }
 
-  @MessagePattern('findOnePersonalDatum')
-  findOne(@Payload() id: number) {
-    return this.personalDataService.findOne(id);
+  @MessagePattern('find.personal.data.by.id')
+  findOne(@Payload() mongoIdDto: string) {
+    return this.personalDataService.findOne(mongoIdDto);
   }
 
-  @MessagePattern('updatePersonalDatum')
-  update(@Payload() updatePersonalDatumDto: UpdatePersonalDatumDto) {
-    return this.personalDataService.update(updatePersonalDatumDto.id, updatePersonalDatumDto);
+  @MessagePattern('update.personal.data')
+  update(@Payload() payload: { id: string, updateDto: UpdatePersonalDataDto }) {
+    return this.personalDataService.update(payload.id, payload.updateDto);
   }
 
-  @MessagePattern('removePersonalDatum')
-  remove(@Payload() id: number) {
-    return this.personalDataService.remove(id);
+  @MessagePattern('remove.personal.data')
+  remove(@Payload() mongoIdDto: MongoIdDto) {
+    return this.personalDataService.remove(mongoIdDto.id);
   }
 }
