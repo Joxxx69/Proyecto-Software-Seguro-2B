@@ -45,3 +45,14 @@ services:
       - NATS_SERVERS=${NATS_SERVERS}
       - NODE_ENV=${NODE_ENV}
 
+  transparency-ms:
+      depends_on:
+        - nats-server
+      build: ./transparency-ms
+      volumes:
+        - ./transparency-ms/src:/usr/src/app/src
+      command: npm run start:dev
+      environment:
+        - PORT=3070
+        - NATS_SERVERS=${NATS_SERVERS}
+        - DATABASE_URL=${TRANSPARENCY_DATABASE_URL}
