@@ -1,9 +1,4 @@
-// This is your Prisma schema file,
-// learn more about it in the docs: https://pris.ly/d/prisma-schema
-
-// Looking for ways to speed up your queries, or scale easily with your serverless or edge functions?
-// Try Prisma Accelerate: https://pris.ly/cli/accelerate-init
-
+// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,4 +6,44 @@ generator client {
 datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
+}
+
+model Consent {
+  id               String            @id @default(auto()) @map("_id") @db.ObjectId
+  titularId        String            @db.ObjectId
+  finalidades      String[]
+  baseLegal        BaseLegal
+  datosTratados    String[]
+  metodoObtencion  MetodoObtencion
+  estado           EstadoConsent     @default(ACTIVO)
+  fechaOtorgamiento DateTime         @default(now())
+  fechaRevocacion  DateTime?
+  version          String
+  createdAt        DateTime          @default(now())
+  updatedAt        DateTime          @updatedAt
+
+  @@index([titularId])
+  @@index([estado]) // Índice para consultas por estado
+  @@index([fechaOtorgamiento]) // Índice para consultas por fecha
+}
+
+enum BaseLegal {
+  CONSENTIMIENTO       // Art. 7.1
+  CONTRATO             // Art. 7.5
+  OBLIGACION_LEGAL     // Art. 7.2
+  INTERES_VITAL        // Art. 7.6
+  INTERES_PUBLICO      // Art. 7.4
+  INTERES_LEGITIMO     // Art. 7.8
+}
+
+enum EstadoConsent {
+  ACTIVO
+  REVOCADO             // Art. 8 (revocación)
+}
+
+enum MetodoObtencion {
+  FORMULARIO_WEB       // Ej: checkbox en un formulario
+  CORREO_ELECTRONICO
+  APP_MOVIL
+  DOCUMENTO_FISICO
 }
