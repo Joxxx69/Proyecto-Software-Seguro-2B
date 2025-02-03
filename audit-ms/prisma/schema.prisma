@@ -12,3 +12,29 @@ datasource db {
   provider = "mongodb"
   url      = env("DATABASE_URL")
 }
+
+// Modelo principal para registrar eventos de auditoría
+model AuditLog {
+  id             String       @id @default(auto()) @map("_id") @db.ObjectId
+  evento         TipoEvento   // Tipo de acción auditada
+  usuarioId      String?      @db.ObjectId // Usuario que realizó la acción (si aplica)
+  entidadAfectada String      // Ej: "PersonalData", "Consent"
+  entidadId      String       @db.ObjectId // ID del recurso afectado (Ej: personalDataId)
+  detalles       Json         // Datos específicos del evento (Ej: campos modificados)
+  nivelRiesgo    NivelRiesgo? // Gravedad del evento (para incidentes de seguridad)
+  createdAt      DateTime     @default(now())
+
+}
+
+enum TipoEvento {
+  ACCESO
+  MODIFICACION
+  ELIMINACION
+  VIOLACION_SEGURIDAD
+}
+
+enum NivelRiesgo {
+  BAJO
+  MEDIO
+  ALTO
+}

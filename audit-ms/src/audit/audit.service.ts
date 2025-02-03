@@ -1,45 +1,34 @@
 import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { CreateAuditDto } from './dto/create-audit.dto';
-import { UpdateAuditDto } from './dto/update-audit.dto';
-import { PrismaClient } from '@prisma/client';
+import { PrismaService } from '../prisma/prisma.service';
 import { ClientProxy } from '@nestjs/microservices';
-import { NATS_SERVICE } from 'src/config/services.config';
+import { CreateAuditDto } from './dto/create-audit.dto';
+import { NATS_SERVICE } from '../config/services.config';
 
 @Injectable()
-export class AuditService extends PrismaClient implements OnModuleInit {
-
+export class AuditService implements OnModuleInit {
   private readonly logger = new Logger(AuditService.name);
 
   constructor(
+    private readonly prisma: PrismaService,  // ✅ PrismaService inyectado correctamente
     @Inject(NATS_SERVICE) private readonly client: ClientProxy
-  ) {
-    super()
-
-  }
+  ) {}
 
   async onModuleInit() {
-    this.$connect();
-    this.logger.log('MongoDb connected')
-
+    await this.prisma.$connect();
+    this.logger.log('MongoDB conectado en AuditService');
   }
 
-  create(createAuditDto: CreateAuditDto) {
-    return 'This action adds a new audit';
+  async createAudit(createAuditDto: CreateAuditDto) {
+    const audit = await this.prisma.auditLog.create({ data: createAuditDto });
+    this.client.emit('audit.created', audit); // Enviar evento a otros servicios
+    return audit;
   }
 
-  findAll() {
-    return `This action returns all audit`;
+  async findAll() {
+    return this.prisma.auditLog.findMany();
   }
 
-  findOne(id: number) {
-    return `This action returns a #${id} audit`;
-  }
-
-  update(id: number, updateAuditDto: UpdateAuditDto) {
-    return `This action updates a #${id} audit`;
-  }
-
-  remove(id: number) {
-    return `This action removes a #${id} audit`;
+  async findOne(id: string) {
+    return this.prisma.auditLog.findUnique({ where: { id } });
   }
 }
