@@ -19,9 +19,9 @@ export class CreateDataTransferDto {
 
 export class CreatePersonalDataDto {
   @IsString()
-  @IsNotEmpty()
+  @IsOptional()
   //@IsUUID()
-  titularId: string;
+  titularId?: string;
 
   @IsString()
   @IsNotEmpty()

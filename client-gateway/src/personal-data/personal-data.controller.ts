@@ -9,17 +9,20 @@ import { firstValueFrom } from 'rxjs';
 import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enum/roles.enum';
 import { AuthGuard } from 'src/auth/guards/auth.guard';
+import { User } from 'src/auth/decorators';
+import { CurrentUser } from 'src/auth/interfaces/current-user.interface';
 
 @Controller('personal-data')
 export class PersonalDataController {
   constructor(@Inject(NATS_SERVICE) private readonly client: ClientProxy) {}
 
-  //@UseGuards(AuthGuard)
-  //@Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
   @Post("create")
-  async createPersonalData(@Body() createDto: CreatePersonalDataDto) {
+  async createPersonalData(@Body() createDto: CreatePersonalDataDto, @User() user: CurrentUser) {
     try {
-      console.log(createDto)
+      console.log({user})
+      createDto.titularId=user.id
       const response = await firstValueFrom(
         this.client.send('create.personal.data', createDto),
       );
