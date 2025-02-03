@@ -5,7 +5,6 @@ import { NatsModule } from 'src/transports/nats.module';
 
 @Module({
   controllers: [UserController],
-  providers: [UserService],
-  imports:[NatsModule]
+  providers: [UserService, NatsModule],
 })
 export class UserModule {}
