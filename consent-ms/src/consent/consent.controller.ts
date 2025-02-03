@@ -1,35 +1,66 @@
-import { Controller } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { ConsentService } from './consent.service';
 import { CreateConsentDto } from './dto/create-consent.dto';
 import { UpdateConsentDto } from './dto/update-consent.dto';
+import { Consent } from '@prisma/client';
 
 @Controller()
 export class ConsentController {
+  private readonly logger = new Logger(ConsentController.name);
+
   constructor(private readonly consentService: ConsentService) {}
 
-  @MessagePattern('createConsent')
-  create(@Payload() createConsentDto: CreateConsentDto) {
-    return this.consentService.create(createConsentDto);
+  @MessagePattern('consent.create')
+  async create(@Payload() createConsentDto: CreateConsentDto){
+    this.logger.log(`Creando nuevo consentimiento para titular: ${createConsentDto.titularId}`);
+    return await this.consentService.create(createConsentDto);
   }
 
-  @MessagePattern('findAllConsent')
-  findAll() {
-    return this.consentService.findAll();
+  @MessagePattern('consent.findAll')
+  async findAll(): Promise<Consent[]> {
+    this.logger.log('Buscando todos los consentimientos');
+    return await this.consentService.findAll();
   }
 
-  @MessagePattern('findOneConsent')
-  findOne(@Payload() id: number) {
-    return this.consentService.findOne(id);
+  @MessagePattern('consent.findOne')
+  async findOne(@Payload() id: string): Promise<Consent> {
+    this.logger.log(`Buscando consentimiento con ID: ${id}`);
+    return await this.consentService.findOne(id);
   }
 
-  @MessagePattern('updateConsent')
-  update(@Payload() updateConsentDto: UpdateConsentDto) {
-    return this.consentService.update(updateConsentDto.id, updateConsentDto);
+  @MessagePattern('consent.findByTitular')
+  async findByTitular(@Payload() titularId: string): Promise<Consent[]> {
+    this.logger.log(`Buscando consentimientos del titular: ${titularId}`);
+    return await this.consentService.findByTitular(titularId);
   }
 
-  @MessagePattern('removeConsent')
-  remove(@Payload() id: number) {
-    return this.consentService.remove(id);
+  @MessagePattern('consent.update')
+  async update(@Payload() payload: { id: string; data: UpdateConsentDto }): Promise<Consent> {
+    this.logger.log(`Actualizando consentimiento ID: ${payload.id}`);
+    return await this.consentService.update(payload.id, payload.data);
+  }
+
+  @MessagePattern('consent.revoke')
+  async revoke(@Payload() id: string): Promise<Consent> {
+    this.logger.log(`Revocando consentimiento ID: ${id}`);
+    return await this.consentService.revoke(id);
+  }
+
+  @MessagePattern('consent.remove')
+  async remove(@Payload() id: string): Promise<void> {
+    this.logger.log(`Eliminando consentimiento ID: ${id}`);
+    return await this.consentService.remove(id);
+  }
+
+  @MessagePattern('consent.validate')
+  async validateConsent(@Payload() payload: { titularId: string; finalidad: string }): Promise<boolean> {
+    this.logger.log(`Validando consentimiento para titular: ${payload.titularId}, finalidad: ${payload.finalidad}`);
+    const consentimientos = await this.consentService.findByTitular(payload.titularId);
+    
+    return consentimientos.some(consent => 
+      consent.estado === 'ACTIVO' && 
+      consent.finalidades.includes(payload.finalidad)
+    );
   }
 }
