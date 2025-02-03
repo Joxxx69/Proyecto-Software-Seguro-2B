@@ -1,0 +1,31 @@
+import { IsString, IsArray, IsEnum, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
+import { BaseLegal, MetodoObtencion } from '../enums/consent.enum';
+
+export class CreateConsentDto {
+  @IsString()
+  @IsNotEmpty()
+  @IsMongoId() // Valida que sea un ObjectId válido
+  titularId: string;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsNotEmpty()
+  finalidades: string[];
+
+  @IsEnum(BaseLegal)
+  @IsNotEmpty()
+  baseLegal: BaseLegal;
+
+  @IsArray()
+  @IsString({ each: true })
+  @IsNotEmpty()
+  datosTratados: string[];
+
+  @IsEnum(MetodoObtencion)
+  @IsNotEmpty()
+  metodoObtencion: MetodoObtencion;
+
+  @IsString()
+  @IsNotEmpty()
+  version: string;
+}
