@@ -70,9 +70,10 @@ export class ConsentController {
   @Patch('update/:id')
   async update(@Param() params: MongoIdDto, @Body() updateConsentDto: UpdateConsentDto) {
     try {
-      return await firstValueFrom(
-        this.client.send('consent.update', { id: params.id, updateConsentDto })
-      );
+      const response = await firstValueFrom(
+        this.client.send('consent.update', { id: params.id, data: updateConsentDto })
+      )
+      return response;
     } catch (error) {
       throw new RpcException(error);
     }
@@ -95,12 +96,13 @@ export class ConsentController {
   // 🔹 Eliminar un consentimiento por ID
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)
-  @Delete(':id')
+  @Delete('remove/:id')
   async remove(@Param() params: MongoIdDto) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.client.send('consent.remove', { id: params.id })
-      );
+      )
+      return response
     } catch (error) {
       throw new RpcException(error);
     }
