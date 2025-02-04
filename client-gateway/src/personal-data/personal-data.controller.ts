@@ -32,8 +32,8 @@ export class PersonalDataController {
     }
   }
 
-  //@UseGuards(AuthGuard)
-  //@Roles(Role.ADMIN_ROLE)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE)
   @Get()
   async getAllPersonalData(@Query() paginationDto: PaginationDto) {
     try {
@@ -46,8 +46,8 @@ export class PersonalDataController {
     }
   }
 
-  //@UseGuards(AuthGuard)
-  //@Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
   @Get(':id')
   async getPersonalDataById(@Param("id") params: string) {
     try {
@@ -60,8 +60,8 @@ export class PersonalDataController {
     }
   }
 
-  //@UseGuards(AuthGuard)
-  //@Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
   @Patch(':id')
   async updatePersonalData(
     @Param() params: MongoIdDto,
@@ -77,8 +77,8 @@ export class PersonalDataController {
     }
   }
 
-  //@UseGuards(AuthGuard)
-  //@Roles(Role.ADMIN_ROLE)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE)
   @Delete(':id')
   async deletePersonalData(@Param() params: MongoIdDto) {
     try {
