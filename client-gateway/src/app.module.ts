@@ -8,7 +8,7 @@ import { ConsentModule } from './consent/consent.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, AuditModule, PersonalDataModule, ConsentModule, TransparencyModule],
+  imports: [AuthModule, UserModule, AuditModule, PersonalDataModule, TransparencyModule, ConsentModule],
   controllers: [],
   providers: [],
 })
