@@ -3,8 +3,7 @@ import { BaseLegal, MetodoObtencion } from '../enums/consent.enum';
 
 export class CreateConsentDto {
   @IsString()
-  @IsNotEmpty()
-  @IsMongoId() // Valida que sea un ObjectId válido
+  @IsOptional()
   titularId: string;
 
   @IsArray()

@@ -65,7 +65,7 @@ export class ConsentService extends PrismaClient {
     }
   }
 
-  async findOne(id: string): Promise<any> {
+  async findOne(id: string) {
     try {
       const consent = await this.consent.findUnique({
         where: { id },
@@ -159,15 +159,16 @@ export class ConsentService extends PrismaClient {
     }
   }
 
-  async remove(id: string): Promise<void> {
+  async remove(id: string): Promise<{ success: boolean; message: string }> {
     try {
       const existingConsent = await this.findOne(id);
-
+  
       await this.consent.delete({
         where: { id },
       });
-
+  
       this.logger.log(`Consentimiento eliminado con ID: ${id}`);
+      return { success: true, message: `Consentimiento con ID ${id} eliminado correctamente` };
     } catch (error) {
       this.handleError(
         error,
