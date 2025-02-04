@@ -11,6 +11,8 @@ import { PaginationDto } from '../common/dto/pagination.dto';
 import { AuthGuard } from '../auth/guards/auth.guard';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enum/roles.enum';
+import { User } from 'src/auth/decorators';
+import { CurrentUser } from 'src/auth/interfaces/current-user.interface';
 
 @Controller('consent')
 export class ConsentController {
@@ -19,11 +21,12 @@ export class ConsentController {
   ) {}
 
   // 🔹 Crear un nuevo consentimiento
-  //@UseGuards(AuthGuard)
-  //@Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
-  @Post()
-  async create(@Body() createConsentDto: CreateConsentDto) {
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Post('create')
+  async create(@Body() createConsentDto: CreateConsentDto, @User() user: CurrentUser) {
     try {
+      createConsentDto.titularId=user.id
       return await firstValueFrom(
         this.client.send('consent.create', createConsentDto)
       );
@@ -35,7 +38,7 @@ export class ConsentController {
   // 🔹 Obtener todos los consentimientos con paginación
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)
-  @Get()
+  @Get('find-all')
   async findAll(@Query() paginationDto: PaginationDto) {
     try {
       return await firstValueFrom(
@@ -49,12 +52,13 @@ export class ConsentController {
   // 🔹 Obtener un consentimiento por ID
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
-  @Get(':id')
+  @Get('findOne/:id')
   async findOne(@Param() params: MongoIdDto) {
     try {
-      return await firstValueFrom(
+      const response = await firstValueFrom(
         this.client.send('consent.findOne', { id: params.id })
       );
+      return response;
     } catch (error) {
       throw new RpcException(error);
     }
@@ -63,7 +67,7 @@ export class ConsentController {
   // 🔹 Actualizar un consentimiento por ID
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
-  @Patch(':id')
+  @Patch('update/:id')
   async update(@Param() params: MongoIdDto, @Body() updateConsentDto: UpdateConsentDto) {
     try {
       return await firstValueFrom(

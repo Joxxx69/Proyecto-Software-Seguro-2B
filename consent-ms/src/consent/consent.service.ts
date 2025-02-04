@@ -65,7 +65,7 @@ export class ConsentService extends PrismaClient {
     }
   }
 
-  async findOne(id: string): Promise<any> {
+  async findOne(id: string) {
     try {
       const consent = await this.consent.findUnique({
         where: { id },

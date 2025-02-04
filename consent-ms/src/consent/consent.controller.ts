@@ -4,6 +4,7 @@ import { ConsentService } from './consent.service';
 import { CreateConsentDto } from './dto/create-consent.dto';
 import { UpdateConsentDto } from './dto/update-consent.dto';
 import { Consent } from '@prisma/client';
+import { MongoIdDto } from './dto/mongo-id.dto';
 
 @Controller()
 export class ConsentController {
@@ -24,9 +25,9 @@ export class ConsentController {
   }
 
   @MessagePattern('consent.findOne')
-  async findOne(@Payload() id: string): Promise<Consent> {
-    this.logger.log(`Buscando consentimiento con ID: ${id}`);
-    return await this.consentService.findOne(id);
+  async findOne(@Payload() mongoIdDto: MongoIdDto) {
+    this.logger.log(`Buscando consentimiento con ID: ${mongoIdDto.id}`);
+    return this.consentService.findOne(mongoIdDto.id);
   }
 
   @MessagePattern('consent.findByTitular')
