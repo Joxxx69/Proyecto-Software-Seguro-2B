@@ -68,4 +68,16 @@ services:
       - PORT=3010
       - NATS_SERVERS=${NATS_SERVERS}
       - DATABASE_URL=${PERSONAL_DATABASE_URL}
+  
+  consent-ms:
+    depends_on:
+      - nats-server
+    build: ./consent-ms
+    volumes:
+      - ./consent-ms/src:/usr/src/app/src
+    command: npm run start:dev
+    environment:
+      - PORT=3003
+      - NATS_SERVERS=${NATS_SERVERS}
+      - DATABASE_URL=${CONSENT_DATABASE_URL}
 

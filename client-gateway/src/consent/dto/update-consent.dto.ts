@@ -1,7 +1,7 @@
 import { PartialType } from '@nestjs/mapped-types';
 import { CreateConsentDto } from './create-consent.dto';
 import { IsString, IsOptional, IsEnum, IsDate, IsMongoId } from 'class-validator';
-import { EstadoConsent } from '@prisma/client';
+import { EstadoConsent } from '../enums/consent.enum';
 
 export class UpdateConsentDto extends PartialType(CreateConsentDto) {
   @IsString()
