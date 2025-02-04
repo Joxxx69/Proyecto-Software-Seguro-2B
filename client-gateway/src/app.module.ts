@@ -4,10 +4,11 @@ import { UserModule } from './user/user.module';
 import { PersonalDataModule } from './personal-data/personal-data.module';
 import { AuditModule } from './audit/audit.module';
 import { TransparencyModule } from './transparency/transparency.module';
+import { ConsentModule } from './consent/consent.module';
 
 
 @Module({
-  imports: [AuthModule, UserModule, AuditModule, PersonalDataModule, TransparencyModule],
+  imports: [AuthModule, UserModule, AuditModule, PersonalDataModule, ConsentModule],
   controllers: [],
   providers: [],
 })

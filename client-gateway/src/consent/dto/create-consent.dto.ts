@@ -1,5 +1,5 @@
 import { IsString, IsArray, IsEnum, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
-import { BaseLegal, MetodoObtencion } from '@prisma/client';
+import { BaseLegal, MetodoObtencion } from '../enums/consent.enum';
 
 export class CreateConsentDto {
   @IsString()
