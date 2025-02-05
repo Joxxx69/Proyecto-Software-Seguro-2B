@@ -1,5 +1,5 @@
 import { HttpStatus, Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { PrismaClient } from '@prisma/client';
+import { ARCORequest, EstadoARCO, PrismaClient, TipoARCO } from '@prisma/client';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { NATS_SERVICE } from '../config/services.config';
 import { firstValueFrom, TimeoutError } from 'rxjs';
@@ -7,6 +7,9 @@ import { UpdatePersonalDataDto } from './dto/update-personal-data.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { FilterPersonalDataDto } from './dto/filter-personal-data.dto';
 import { CreatePersonalDataDto } from './dto/create-personal-data.dto';
+import { CreateARCORequestDto } from './dto/create-arco-request.dto';
+import { FilterARCORequestDto } from './dto/filter-arco-request.dto';
+import { UpdateARCORequestDto } from './dto/update-arco-request.dto';
 
 @Injectable()
 export class PersonalDataService extends PrismaClient implements OnModuleInit {
@@ -42,23 +45,11 @@ export class PersonalDataService extends PrismaClient implements OnModuleInit {
 
   async create(createDto: CreatePersonalDataDto) {
     try {
-      /*
-      const [usuario, consentimiento] = await Promise.all([
-        firstValueFrom(
-          this.client.send('find.user.by.id', { id: createDto.titularId })
-        ),
-        firstValueFrom(
-          this.client.send('find.consent.by.id', { id: createDto.consentId })
-        )
-      ]);
-      */
       const personalData = await this.personalData.create({
         data: {
           titularId: createDto.titularId,
-          consentId: createDto.consentId,
           datosGenerales: createDto.datosGenerales,
           categoria: createDto.categoria,
-          finalidad: createDto.finalidad,
           transferencias: createDto.transferencias ? {
             create: createDto.transferencias.map(transfer => ({
               destinatario: transfer.destinatario,
@@ -183,7 +174,6 @@ export class PersonalDataService extends PrismaClient implements OnModuleInit {
         where: { id, eliminado: false },
         data: {
           datosGenerales: updateDto.datosGenerales,
-          finalidad: updateDto.finalidad,
           fechaActualizacion: new Date(),
           transferencias: updateDto.transferencias ? {
             deleteMany: {},
@@ -255,4 +245,178 @@ export class PersonalDataService extends PrismaClient implements OnModuleInit {
       );
     }
   }
+
+  // CRUD para Solicitudes ARCO
+  async createARCORequest(createDto: CreateARCORequestDto) {
+    try {
+      const arcoRequest = await this.aRCORequest.create({
+        data: {
+          titularId: createDto.titularId,
+          tipo: createDto.tipo,
+          datosSolicitados: createDto.datosSolicitados,
+          // estado y fechas se asignan automáticamente según el esquema
+        }
+      });
+
+      return arcoRequest;
+    } catch (error) {
+      this.handleError(
+        error,
+        'Error al crear solicitud ARCO',
+        HttpStatus.BAD_REQUEST
+      );
+    }
+  }
+
+  async findAllARCORequests(paginationDto: PaginationDto, filterDto?: FilterARCORequestDto) {
+    try {
+      const { limit = 10, page = 1 } = paginationDto;
+      const { titularId, tipo, estado, fechaDesde, fechaHasta } = filterDto || {};
+
+      const where = {
+        ...(titularId && { titularId }),
+        ...(tipo && { tipo }),
+        ...(estado && { estado }),
+        ...(fechaDesde || fechaHasta) && {
+          fechaSolicitud: {
+            gte: fechaDesde,
+            lte: fechaHasta
+          }
+        }
+      };
+
+      const [totalRecords, data] = await Promise.all([
+        this.aRCORequest.count({ where }),
+        this.aRCORequest.findMany({
+          where,
+          skip: (page - 1) * limit,
+          take: limit,
+          orderBy: { fechaSolicitud: 'desc' }
+        })
+      ]);
+
+      const lastPage = Math.ceil(totalRecords / limit);
+
+      return {
+        data,
+        meta: {
+          totalRecords,
+          page,
+          lastPage,
+          hasNextPage: page < lastPage,
+          hasPrevPage: page > 1
+        }
+      };
+    } catch (error) {
+      this.handleError(
+        error,
+        'Error al obtener solicitudes ARCO',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async findOneARCORequest(id: string) {
+    try {
+      const arcoRequest = await this.aRCORequest.findUnique({
+        where: { id }
+      });
+
+      if (!arcoRequest) {
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+          message: `Solicitud ARCO con id ${id} no encontrada`
+        });
+      }
+
+      return arcoRequest;
+    } catch (error) {
+      this.handleError(
+        error,
+        'Error al obtener solicitud ARCO',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  async updateARCORequest(id: string, updateDto: UpdateARCORequestDto) {
+    try {
+      const existingRequest = await this.findOneARCORequest(id);
+
+      if (existingRequest.estado !== EstadoARCO.PENDIENTE) {
+        throw new RpcException({
+          status: HttpStatus.BAD_REQUEST,
+          message: 'Solicitud ya procesada no puede modificarse'
+        });
+      }
+
+      const updateData: any = {
+        estado: updateDto.estado,
+        motivoRechazo: updateDto.motivoRechazo,
+        fechaRespuesta: new Date()
+      };
+
+      const updatedRequest = await this.aRCORequest.update({
+        where: { id },
+        data: updateData
+      });
+
+      // Ejecutar acciones según el tipo de solicitud
+      if (updateDto.estado === EstadoARCO.COMPLETADO) {
+        await this.processARCORequest(existingRequest);
+      }
+
+      return updatedRequest;
+    } catch (error) {
+      this.handleError(
+        error,
+        'Error al actualizar solicitud ARCO',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+  private async processARCORequest(request: ARCORequest) {
+    try {
+      switch (request.tipo) {
+        case TipoARCO.ACCESO:
+          await this.client.emit('arco_access', request);
+          break;
+        case TipoARCO.RECTIFICACION:
+          await this.client.emit('arco_rectification', request);
+          break;
+        case TipoARCO.CANCELACION:
+          await this.client.emit('arco_deletion', {
+            titularId: request.titularId,
+            datosSolicitados: request.datosSolicitados
+          });
+          break;
+        case TipoARCO.OPOSICION:
+          await this.client.emit('arco_opposition', request);
+          break;
+      }
+    } catch (error) {
+      this.logger.error(`Error procesando solicitud ARCO: ${error.message}`);
+    }
+  }
+
+  async deleteARCORequest(id: string) {
+    try {
+      await this.aRCORequest.delete({
+        where: { id }
+      });
+
+      return {
+        success: true,
+        message: `Solicitud ARCO con id ${id} eliminada correctamente`
+      };
+    } catch (error) {
+      this.handleError(
+        error,
+        'Error al eliminar solicitud ARCO',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
 }

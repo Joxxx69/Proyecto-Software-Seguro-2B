@@ -5,6 +5,9 @@ import { CreatePersonalDataDto} from './dto/create-personal-data.dto';
 import { UpdatePersonalDataDto } from './dto/update-personal-data.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { MongoIdDto } from './dto/mongo-id.dto';
+import { CreateARCORequestDto } from './dto/create-arco-request.dto';
+import { FilterARCORequestDto } from './dto/filter-arco-request.dto';
+import { UpdateARCORequestDto } from './dto/update-arco-request.dto';
 
 
 @Controller()
@@ -35,4 +38,37 @@ export class PersonalDataController {
   remove(@Payload() mongoIdDto: MongoIdDto) {
     return this.personalDataService.remove(mongoIdDto.id);
   }
+
+  @MessagePattern('create_arco_request')
+  async createARCORequest(@Payload() createDto: CreateARCORequestDto) {
+    return await this.personalDataService.createARCORequest(createDto);
+  }
+
+  @MessagePattern('find_all_arco_requests')
+  async findAllARCORequests(
+    @Payload() payload: { paginationDto: PaginationDto; filterDto?: FilterARCORequestDto },
+  ) {
+    const { paginationDto, filterDto } = payload;
+    return await this.personalDataService.findAllARCORequests(paginationDto, filterDto);
+  }
+
+  @MessagePattern('find_one_arco_request')
+  async findOneARCORequest(@Payload() id: string) {
+    return await this.personalDataService.findOneARCORequest(id);
+  }
+
+
+  @MessagePattern('update_arco_request')
+  async updateARCORequest(
+    @Payload() payload: { id: string; updateDto: UpdateARCORequestDto },
+  ) {
+    const { id, updateDto } = payload;
+    return await this.personalDataService.updateARCORequest(id, updateDto);
+  }
+
+  @MessagePattern('delete_arco_request')
+  async deleteARCORequest(@Payload() id: string) {
+    return await this.personalDataService.deleteARCORequest(id);
+  }
+
 }
