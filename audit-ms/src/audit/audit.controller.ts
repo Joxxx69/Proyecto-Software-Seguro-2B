@@ -1,39 +1,38 @@
-import { Controller, Get, Param } from '@nestjs/common';
+import { Controller, Logger } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { AuditService } from './audit.service';
-import { CreateAuditDto } from './dto/create-audit.dto';
+import { CreateAuditLogDto } from './dto/create-audit.dto';
 
-@Controller('audit')
+@Controller()
 export class AuditController {
+  private readonly logger = new Logger(AuditController.name);
+
   constructor(private readonly auditService: AuditService) {}
 
-  // 📌 Escuchar peticiones de client-gateway para obtener todas las auditorías
-  @MessagePattern('audit.getAll')
-  async findAll() {
-    return this.auditService.findAll();
+  @MessagePattern('audit.log.create')
+  async createAuditLog(@Payload() createAuditLogDto: CreateAuditLogDto) {
+    this.logger.log('Mensaje recibido para crear registro de auditoría');
+    return await this.auditService.createAuditLog(createAuditLogDto);
   }
 
-  // 📌 Escuchar peticiones de client-gateway para obtener una auditoría específica
-  @MessagePattern('audit.getOne')
-  async findOne(@Payload() id: string) {
-    return this.auditService.findOne(id);
+
+  @MessagePattern('audit.log.get.one')
+  async getAuditLogById(@Payload() id: string) {
+    this.logger.log(`Mensaje recibido para obtener registro de auditoría con id: ${id}`);
+    return await this.auditService.getAuditLogById(id);
   }
 
-  // 📌 Escuchar peticiones de client-gateway para crear una auditoría
-  @MessagePattern('audit.create')
-  async create(@Payload() createAuditDto: CreateAuditDto) {
-    return this.auditService.createAudit(createAuditDto);
+
+  @MessagePattern('audit.log.get.all')
+  async getAllAuditLogs() {
+    this.logger.log('Mensaje recibido para obtener todos los registros de auditoría');
+    return await this.auditService.getAllAuditLogs();
   }
 
-  // 📌 Nuevo patrón de mensaje para obtener logs de acceso desde personal-data
-  @MessagePattern('audit.getAccessLogs')
-  async getAccessLogs(@Payload() personalDataId: string) {
-    return this.auditService.getPersonalDataAccessLogs(personalDataId);
-  }
 
-  // 📌 Nuevo endpoint HTTP para obtener logs de acceso desde personal-data
-  @Get('logs/:personalDataId')
-  async getAccessLogsHttp(@Param('personalDataId') personalDataId: string) {
-    return this.auditService.getPersonalDataAccessLogs(personalDataId);
+  @MessagePattern('audit.log.get.by.user')
+  async getAuditLogsByUser(@Payload() usuarioId: string) {
+    this.logger.log(`Mensaje recibido para obtener registros de auditoría del usuario: ${usuarioId}`);
+    return await this.auditService.getAuditLogsByUser(usuarioId);
   }
 }

@@ -1,18 +1,16 @@
-import { Inject, Injectable, Logger, OnModuleInit } from '@nestjs/common';
-import { PrismaService } from '../prisma/prisma.service';
-import { ClientProxy } from '@nestjs/microservices';
-import { CreateAuditDto } from './dto/create-audit.dto';
+import { Injectable, OnModuleInit, Logger, Inject } from '@nestjs/common';
+import { ClientProxy, RpcException } from '@nestjs/microservices';
+import { PrismaService } from '../prisma/prisma.service'; // Ajusta la ruta según la estructura de tu proyecto
 import { NATS_SERVICE } from '../config/services.config';
-import { firstValueFrom } from 'rxjs';
-import { Controller, Get, Param } from '@nestjs/common';
+import { CreateAuditLogDto } from './dto/create-audit.dto';
 
 @Injectable()
 export class AuditService implements OnModuleInit {
   private readonly logger = new Logger(AuditService.name);
 
   constructor(
-    private readonly prisma: PrismaService,  
-    @Inject(NATS_SERVICE) private readonly client: ClientProxy
+    private readonly prisma: PrismaService,
+    @Inject(NATS_SERVICE) private readonly client: ClientProxy,
   ) {}
 
   async onModuleInit() {
@@ -20,30 +18,72 @@ export class AuditService implements OnModuleInit {
     this.logger.log('MongoDB conectado en AuditService');
   }
 
-  async createAudit(createAuditDto: CreateAuditDto) {
-    const audit = await this.prisma.auditLog.create({ data: createAuditDto });
-    this.client.emit('audit.created', audit);
-    return audit;
+
+  private handleError(error: any, defaultMessage: string): never {
+    this.logger.error(error);
+    throw new RpcException({
+      status: 500,
+      message: error?.message || defaultMessage,
+    });
   }
 
-  async findAll() {
-    return this.prisma.auditLog.findMany();
-  }
 
-  async findOne(id: string) {
-    return this.prisma.auditLog.findUnique({ where: { id } });
-  }
-
-  // Nueva función para obtener logs de acceso desde el microservicio de personal-data
-  async getPersonalDataAccessLogs(personalDataId: string) {
+  async createAuditLog(createAuditLogDto: CreateAuditLogDto){
     try {
-      const logs = await firstValueFrom(
-        this.client.send('find.personal.data.by.id', { id: personalDataId })
-      );
-      return logs?.accessLogs || [];
+      const auditLog = await this.prisma.auditLog.create({
+        data: {
+          evento: createAuditLogDto.evento,
+          usuarioId: createAuditLogDto.usuarioId,
+          entidadAfectada: createAuditLogDto.entidadAfectada,
+          entidadId: createAuditLogDto.entidadId || '',
+          detalles: createAuditLogDto.detalles,
+          nivelRiesgo: createAuditLogDto.nivelRiesgo,
+          ipAddress: createAuditLogDto.ipAddress || ''
+        },
+      });
+
+      return auditLog;
     } catch (error) {
-      this.logger.error('Error al obtener logs de acceso', error);
-      throw error;
+      this.handleError(error, 'Error al crear el registro de auditoría');
+    }
+  }
+
+
+  async getAuditLogById(id: string) {
+    try {
+      const auditLog = await this.prisma.auditLog.findUnique({
+        where: { id },
+      });
+
+      if (!auditLog) {
+        throw new RpcException({
+          status: 404,
+          message: 'Registro de auditoría no encontrado',
+        });
+      }
+      return auditLog;
+    } catch (error) {
+      this.handleError(error, 'Error al obtener el registro de auditoría');
+    }
+  }
+
+
+  async getAllAuditLogs(){
+    try {
+      return await this.prisma.auditLog.findMany();
+    } catch (error) {
+      this.handleError(error, 'Error al obtener los registros de auditoría');
+    }
+  }
+
+
+  async getAuditLogsByUser(userId: string){
+    try {
+      return await this.prisma.auditLog.findMany({
+        where: { usuarioId:userId }
+      });
+    } catch (error) {
+      this.handleError(error, 'Error al obtener los registros de auditoría del usuario');
     }
   }
 }

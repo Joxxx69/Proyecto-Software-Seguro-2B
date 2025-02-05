@@ -261,14 +261,18 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             await firstValueFrom(
                 this.client.send('update.user',{id,updateUserDto:{lastLogin:new Date()}}).pipe(timeout(5000))
             )
-            await this.logAuth.create({
-                data: {
-                    userId: id,
-                    action: "login",
-                    description: `User with roles ${roles}`,
-                    ipAddress: loginUserDto.ipAddress,
-                }
-            })
+            const auditLog = {
+                evento: 'ACCESO',
+                usuarioId: id,
+                entidadAfectada: 'Microservicio de Autenticacion',
+                detalles: `Ingreso al sistema ${new Date()}`,
+                nivelRiesgo: 'BAJO',
+                ipAddress: loginUserDto.ipAddress,
+
+            }
+            await firstValueFrom(
+                 this.client.send('audit.log.create', auditLog)
+            )
             return { user: { id, roles }, ...tokens }
 
         } catch (error) {
