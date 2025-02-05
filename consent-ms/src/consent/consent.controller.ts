@@ -64,4 +64,9 @@ export class ConsentController {
       consent.finalidades.includes(payload.finalidad)
     );
   }
+
+  @MessagePattern('find.all.auth.logs')
+  findAllAuthLogs( ) {
+    return this.consentService.findAllAuthLogs();
+  }
 }

@@ -25,7 +25,6 @@ export class ConsentService extends PrismaClient {
 
   async create(createConsentDto: CreateConsentDto) {
     try {
-      // Crear el consentimiento sin validar la existencia del usuario
       const consent = await this.consent.create({
         data: {
           titularId: createConsentDto.titularId,
@@ -37,14 +36,21 @@ export class ConsentService extends PrismaClient {
         },
       });
 
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: consent.id,
+          userId: createConsentDto.titularId,
+          action: 'CREATED',
+          details: 'Consentimiento creado',
+        },
+      });
+
       this.logger.log(`Consentimiento creado con ID: ${consent.id}`);
       return consent;
     } catch (error) {
-      this.handleError(
-        error,
-        'Error al crear consentimiento',
-        HttpStatus.BAD_REQUEST,
-      );
+      this.logger.error('Error al crear consentimiento', error);
+      throw error;
     }
   }
 
@@ -106,11 +112,10 @@ export class ConsentService extends PrismaClient {
     }
   }
 
-  async update(id: string, updateConsentDto: UpdateConsentDto): Promise<any> {
+  async update(id: string, updateConsentDto: UpdateConsentDto) {
     try {
       const existingConsent = await this.findOne(id);
 
-      // Actualizar el consentimiento sin validar la existencia del usuario
       const updatedConsent = await this.consent.update({
         where: { id },
         data: {
@@ -121,41 +126,63 @@ export class ConsentService extends PrismaClient {
           metodoObtencion: updateConsentDto.metodoObtencion,
           version: updateConsentDto.version,
           estado: updateConsentDto.estado,
-          fechaRevocacion: updateConsentDto.fechaRevocacion,
+        },
+      });
+
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: id,
+          userId: existingConsent.titularId,
+          action: 'UPDATED',
+          details: 'Consentimiento actualizado',
         },
       });
 
       this.logger.log(`Consentimiento actualizado con ID: ${updatedConsent.id}`);
       return updatedConsent;
     } catch (error) {
-      this.handleError(
-        error,
-        'Error al actualizar consentimiento',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      this.logger.error('Error al actualizar consentimiento', error);
+      throw error;
     }
   }
 
-  async revoke(id: string): Promise<any> {
+  async findAllAuthLogs() {
+    try {
+        const authLogs = await this.consentLog.findMany();
+        return authLogs;
+    } catch (error) {
+        this.handleError(error, 'Error fetching authentication logs', HttpStatus.INTERNAL_SERVER_ERROR);
+    }
+  }
+
+  async revoke(id: string) {
     try {
       const existingConsent = await this.findOne(id);
 
       const revokedConsent = await this.consent.update({
         where: { id },
         data: {
-          estado: 'REVOCADO', // Cambia el estado a REVOCADO
+          estado: 'REVOCADO',
           fechaRevocacion: new Date(),
+        },
+      });
+
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: id,
+          userId: existingConsent.titularId,
+          action: 'REVOKED',
+          details: 'Consentimiento revocado',
         },
       });
 
       this.logger.log(`Consentimiento revocado con ID: ${revokedConsent.id}`);
       return revokedConsent;
     } catch (error) {
-      this.handleError(
-        error,
-        'Error al revocar consentimiento',
-        HttpStatus.INTERNAL_SERVER_ERROR,
-      );
+      this.logger.error('Error al revocar consentimiento', error);
+      throw error;
     }
   }
 
