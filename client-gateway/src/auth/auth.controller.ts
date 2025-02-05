@@ -46,8 +46,11 @@ export class AuthController {
   }
 
   @Post('login')
-  async loginUser(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response) {
+  async loginUser(@Body() loginUserDto: LoginUserDto, @Res({ passthrough: true }) res: Response, @Req() req: Request) {
     try {
+      const ipAddressRaw = req.headers['x-forwarded-for'] || req.socket.remoteAddress;
+      const ipAddress = Array.isArray(ipAddressRaw) ? ipAddressRaw.join(', ') : ipAddressRaw;
+      loginUserDto.ipAddress = ipAddress
       const user = await firstValueFrom(
         this.client.send('auth.login.user', loginUserDto)
       )

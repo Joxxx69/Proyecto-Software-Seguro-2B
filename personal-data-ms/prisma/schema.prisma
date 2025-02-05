@@ -11,10 +11,8 @@ datasource db {
 model PersonalData {
   id                String          @id @default(auto()) @map("_id") @db.ObjectId
   titularId         String          @db.ObjectId 
-  consentId         String          @db.ObjectId 
   datosGenerales    Json            
   categoria         CategoriaData   @default(GENERAL)
-  finalidad         String          
   fechaCreacion     DateTime        @default(now())
   fechaActualizacion DateTime       @updatedAt
   eliminado         Boolean         @default(false) 
@@ -25,7 +23,6 @@ model PersonalData {
   accessLogs        DataAccessLog[]
 
   @@index([titularId])
-  @@index([consentId])
 }
 
 // Modelo para datos sensibles
