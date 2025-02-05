@@ -67,6 +67,6 @@ export class ConsentController {
 
   @MessagePattern('find.all.auth.logs')
   findAllAuthLogs( ) {
-    return this.authService.findAllAuthLogs();
+    return this.consentService.findAllAuthLogs();
   }
 }
