@@ -1,4 +1,3 @@
-// schema.prisma
 generator client {
   provider = "prisma-client-js"
 }
@@ -8,30 +7,18 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelo para políticas de privacidad y términos actualizados
+// Modelo para políticas de privacidad
 model PrivacyPolicy {
   id              String          @id @default(auto()) @map("_id") @db.ObjectId
   version         String          // Versión semántica (Ej: "v2.1.0")
-  contenido       String          // Texto completo de la política (HTML/JSON)
+  contenido       String          // Texto completo de la política
   fechaPublicacion DateTime       @default(now())
   fechaEfectiva   DateTime        // Fecha cuando entra en vigor
   estado          EstadoPolicy    @default(ACTIVA)
   cambios         String[]        // Lista de cambios destacados
-  aprobacionesRequeridas Boolean  @default(false)  // Si requiere aprobación explícita
-  aprobaciones    PolicyApproval[] // Relación con aprobaciones de usuarios
+  aprobacionesRequeridas Boolean  @default(false)
 
   @@unique([version])
-}
-
-// Nuevo modelo para registrar aprobaciones de políticas
-model PolicyApproval {
-  id              String       @id @default(auto()) @map("_id") @db.ObjectId
-  policyId        String       @db.ObjectId
-  titularId       String       @db.ObjectId
-  fechaAprobacion DateTime     @default(now())
-  policy          PrivacyPolicy @relation(fields: [policyId], references: [id])
-
-  @@unique([policyId, titularId])
 }
 
 // Modelo para registro de acceso a información de transparencia
@@ -40,48 +27,16 @@ model TransparencyLog {
   usuarioId       String          @db.ObjectId 
   tipoAcceso      TipoAcceso      
   fechaAcceso     DateTime        @default(now())
-  datosConsulta   Json?           
+  datosConsulta   Json?          
   ipAddress       String?         // Dirección IP del acceso
   userAgent       String?         // Información del navegador/dispositivo
 
   @@index([usuarioId])
 }
 
-// Modelo para notificaciones de transparencia (nuevo)
-model TransparencyNotification {
-  id              String                @id @default(auto()) @map("_id") @db.ObjectId
-  titularId       String                @db.ObjectId
-  tipo            TipoNotificacion
-  titulo          String
-  descripcion     String
-  detalles        Json?
-  fechaEnvio      DateTime              @default(now())
-  fechaLectura    DateTime?
-  estado          EstadoNotificacion    @default(PENDIENTE)
-  requiereAccion  Boolean               @default(false)
-
-  @@index([titularId])
-}
-
-// Modelo para solicitudes de información de transparencia
-model DataSubjectRequest {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  titularId       String          @db.ObjectId
-  tipo            TipoSolicitud   
-  estado          EstadoSolicitud @default(PENDIENTE)
-  respuesta       String?         
-  fechaSolicitud  DateTime        @default(now())
-  fechaRespuesta  DateTime?       
-  prioridad       Prioridad       @default(NORMAL)
-  motivoRechazo   String?
-
-  @@index([titularId])
-}
-
 enum EstadoPolicy {
   ACTIVA
   HISTORICA
-  PENDIENTE
 }
 
 enum TipoAcceso {
@@ -91,41 +46,4 @@ enum TipoAcceso {
   DERECHOS_ARCO
   MEDIDAS_SEGURIDAD
   REGISTRO_ACTIVIDAD
-}
-
-enum TipoNotificacion {
-  BREACH           // Brecha de seguridad
-  POLICY_CHANGE    // Cambio en política de privacidad
-  DATA_ACCESS      // Acceso a datos personales
-  RIGHTS_EXERCISE  // Ejercicio de derechos ARCO
-}
-
-enum EstadoNotificacion {
-  PENDIENTE
-  ENTREGADA
-  LEIDA
-  ACCION_REQUERIDA
-  COMPLETADA
-}
-
-enum TipoSolicitud {
-  FINALIDADES
-  DESTINATARIOS
-  BASES_LEGALES
-  SEGURIDAD
-  BREACH_INFO     // Información sobre brecha de seguridad
-}
-
-enum EstadoSolicitud {
-  PENDIENTE
-  COMPLETADA
-  RECHAZADA
-  EN_PROCESO
-}
-
-enum Prioridad {
-  BAJA
-  NORMAL
-  ALTA
-  URGENTE
 }

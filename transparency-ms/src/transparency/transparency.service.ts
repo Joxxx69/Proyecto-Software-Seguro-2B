@@ -1,8 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { RpcException } from '@nestjs/microservices';
-import { CreateNotificationDto } from './dto/create-transparency-notification.dto';
-import { UpdatePrivacyPolicyDto } from './dto/update-privacy-policy.dto';
+import { PrivacyPolicyDto } from './dto/privacy-policy.dto';
 
 @Injectable()
 export class TransparencyService extends PrismaClient implements OnModuleInit {
@@ -13,91 +12,58 @@ export class TransparencyService extends PrismaClient implements OnModuleInit {
     this.logger.log('MongoDb connected');
   }
 
-  async createNotification(createDto: CreateNotificationDto) {
+  async getCurrentPrivacyPolicy() {
     try {
-      const notification = await this.transparencyLog.create({
-        data: {
-          usuarioId: createDto.titularId,
-          tipoAcceso: this.mapTipoAcceso(createDto.tipo), // Mapeamos el tipo
-          datosConsulta: createDto.detalles
+      return await this.privacyPolicy.findFirst({
+        where: {
+          estado: 'ACTIVA'
+        },
+        orderBy: {
+          fechaPublicacion: 'desc'
         }
       });
-
-      if(createDto.tipo === 'BREACH') {
-        await this.dataSubjectRequest.create({
-          data: {
-            titularId: createDto.titularId,
-            tipo: 'SEGURIDAD',
-            estado: 'PENDIENTE',
-            respuesta: JSON.stringify(createDto.detalles)
-          }
-        });
-      }
-
-      return notification;
     } catch (error) {
       this.logger.error(error);
       throw new RpcException(error);
     }
   }
 
-  async updatePrivacyPolicy(updateDto: UpdatePrivacyPolicyDto) {
+  async updatePrivacyPolicy(updateDto: PrivacyPolicyDto) {
     try {
-      const policy = await this.privacyPolicy.create({
-        data: {
-          version: updateDto.version,
-          contenido: updateDto.contenido,
-          cambios: updateDto.cambios,
-          estado: 'ACTIVA',
-          fechaEfectiva: updateDto.fechaEfectiva || new Date(), // Añadimos fechaEfectiva
-          fechaPublicacion: new Date()
-        }
-      });
-
+      // Desactivar política actual
       await this.privacyPolicy.updateMany({
-        where: { 
-          NOT: { id: policy.id },
-          estado: 'ACTIVA'
-        },
+        where: { estado: 'ACTIVA' },
         data: { estado: 'HISTORICA' }
       });
 
-      return policy;
+      // Crear nueva política
+      return await this.privacyPolicy.create({
+        data: {
+          version: updateDto.version,
+          contenido: updateDto.contenido,
+          fechaEfectiva: updateDto.fechaEfectiva,
+          fechaPublicacion: new Date(),
+          cambios: updateDto.cambios,
+          estado: 'ACTIVA'
+        }
+      });
     } catch (error) {
       this.logger.error(error);
       throw new RpcException(error);
     }
   }
 
-  // Función helper para mapear tipos
-  private mapTipoAcceso(tipo: string): 'POLITICA_PRIVACIDAD' | 'FINALIDAD_TRATAMIENTO' | 'DESTINATARIOS' | 'DERECHOS_ARCO' | 'MEDIDAS_SEGURIDAD' | 'REGISTRO_ACTIVIDAD' {
-    const tipoMap = {
-      'BREACH': 'REGISTRO_ACTIVIDAD',
-      'POLICY_CHANGE': 'POLITICA_PRIVACIDAD',
-      'DATA_ACCESS': 'DESTINATARIOS',
-    };
-    return tipoMap[tipo] || 'REGISTRO_ACTIVIDAD';
-  }
-
-  async getTransparencyData(titularId: string) {
+  async getAccessLogs(userId: string) {
     try {
-      const [policies, requests, logs] = await Promise.all([
-        this.privacyPolicy.findFirst({
-          where: { estado: 'ACTIVA' }
-        }),
-        this.dataSubjectRequest.findMany({
-          where: { titularId }
-        }),
-        this.transparencyLog.findMany({
-          where: { usuarioId: titularId }
-        })
-      ]);
-
-      return {
-        currentPolicy: policies,
-        requests,
-        accessLogs: logs
-      };
+      return await this.transparencyLog.findMany({
+        where: {
+          usuarioId: userId
+        },
+        orderBy: {
+          fechaAcceso: 'desc'
+        },
+        take: 50 // Limitar a los últimos 50 registros
+      });
     } catch (error) {
       this.logger.error(error);
       throw new RpcException(error);
