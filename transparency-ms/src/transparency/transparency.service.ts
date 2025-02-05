@@ -1,7 +1,7 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { RpcException } from '@nestjs/microservices';
-import { CreateTransparencyNotificationDto } from './dto/create-transparency-notification.dto';
+import { CreateNotificationDto } from './dto/create-transparency-notification.dto';
 import { UpdatePrivacyPolicyDto } from './dto/update-privacy-policy.dto';
 
 @Injectable()
@@ -10,20 +10,19 @@ export class TransparencyService extends PrismaClient implements OnModuleInit {
 
   async onModuleInit() {
     await this.$connect();
-    this.logger.log('MongoDB connected');
+    this.logger.log('MongoDb connected');
   }
 
-  async createNotification(createDto: CreateTransparencyNotificationDto) {
+  async createNotification(createDto: CreateNotificationDto) {
     try {
       const notification = await this.transparencyLog.create({
         data: {
           usuarioId: createDto.titularId,
-          tipoAcceso: createDto.tipo,
+          tipoAcceso: this.mapTipoAcceso(createDto.tipo), // Mapeamos el tipo
           datosConsulta: createDto.detalles
         }
       });
 
-      // Si es una brecha de seguridad, crear registro especial
       if(createDto.tipo === 'BREACH') {
         await this.dataSubjectRequest.create({
           data: {
@@ -49,11 +48,12 @@ export class TransparencyService extends PrismaClient implements OnModuleInit {
           version: updateDto.version,
           contenido: updateDto.contenido,
           cambios: updateDto.cambios,
-          estado: 'ACTIVA'
+          estado: 'ACTIVA',
+          fechaEfectiva: updateDto.fechaEfectiva || new Date(), // Añadimos fechaEfectiva
+          fechaPublicacion: new Date()
         }
       });
 
-      // Actualizar política anterior a histórica
       await this.privacyPolicy.updateMany({
         where: { 
           NOT: { id: policy.id },
@@ -67,6 +67,16 @@ export class TransparencyService extends PrismaClient implements OnModuleInit {
       this.logger.error(error);
       throw new RpcException(error);
     }
+  }
+
+  // Función helper para mapear tipos
+  private mapTipoAcceso(tipo: string): 'POLITICA_PRIVACIDAD' | 'FINALIDAD_TRATAMIENTO' | 'DESTINATARIOS' | 'DERECHOS_ARCO' | 'MEDIDAS_SEGURIDAD' | 'REGISTRO_ACTIVIDAD' {
+    const tipoMap = {
+      'BREACH': 'REGISTRO_ACTIVIDAD',
+      'POLICY_CHANGE': 'POLITICA_PRIVACIDAD',
+      'DATA_ACCESS': 'DESTINATARIOS',
+    };
+    return tipoMap[tipo] || 'REGISTRO_ACTIVIDAD';
   }
 
   async getTransparencyData(titularId: string) {
