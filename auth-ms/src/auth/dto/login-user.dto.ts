@@ -10,4 +10,7 @@ export class LoginUserDto  {
   @IsString()
   @IsStrongPassword()
   password: string
+
+  @IsOptional()
+  ipAddress?:string 
 }

@@ -18,7 +18,7 @@ export class AuthController {
   }
   @MessagePattern('auth.login.user')
   loginUser(@Payload() loginUserDto:LoginUserDto) {
-    return this.authService.loginUser(loginUserDto);  
+    return this.authService.loginUser(loginUserDto );  
   }
 
   @MessagePattern('auth.invalidate.refresh.token')
@@ -52,5 +52,10 @@ export class AuthController {
   @MessagePattern('auth.reset.password')
   resetPassword(@Payload() resetPassworddto:ResetPasswordDto ) {
     return this.authService.resetPassword(resetPassworddto)
+  }
+
+  @MessagePattern('find.all.auth.logs')
+  findAllAuthLogs( ) {
+    return this.authService.findAllAuthLogs();
   }
 }

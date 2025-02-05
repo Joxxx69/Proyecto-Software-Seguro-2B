@@ -13,3 +13,16 @@ export enum CategoriaData {
     JUDICIAL = "JUDICIAL"
 };
 
+export enum TipoARCO {
+    ACCESO = "ACCESO",
+    RECTIFICACION = "RECTIFICACION",
+    CANCELACION = "CANCELACION",
+    OPOSICION = "OPOSICION"
+  }
+  
+export enum EstadoARCO {
+    PENDIENTE = "PENDIENTE",
+    COMPLETADO = "COMPLETADO",
+    RECHAZADO = "RECHAZADO"
+  }
+  
