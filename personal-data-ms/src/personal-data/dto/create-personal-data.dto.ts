@@ -23,11 +23,6 @@ export class CreatePersonalDataDto {
   //@IsUUID()
   titularId: string;
 
-  @IsString()
-  @IsNotEmpty()
-  //@IsUUID()
-  consentId: string;
-
   @IsOptional()
   @IsEnum(CategoriaData)
   categoria?: CategoriaData;
@@ -35,10 +30,6 @@ export class CreatePersonalDataDto {
   @IsObject()
   @IsNotEmpty()
   datosGenerales: Record<string, any>;
-
-  @IsString()
-  @IsNotEmpty()
-  finalidad: string;
 
   @IsArray()
   @IsOptional()
