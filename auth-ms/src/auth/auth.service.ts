@@ -18,13 +18,13 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
     private readonly logger = new Logger(AuthService.name);
 
-    constructor(
+     constructor(
         @Inject(NATS_SERVICE) private readonly client: ClientProxy,
         private readonly jwtService: JwtService
     ) {
         super()
     }
-    onModuleInit() {
+    async onModuleInit() {
         this.$connect()
         this.logger.log('MongoDb connected')
     }
@@ -261,6 +261,14 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             await firstValueFrom(
                 this.client.send('update.user',{id,updateUserDto:{lastLogin:new Date()}}).pipe(timeout(5000))
             )
+            await this.logAuth.create({
+                data: {
+                    userId: id,
+                    action: "login",
+                    description: `User with roles ${roles}`,
+                    ipAddress: loginUserDto.ipAddress,
+                }
+            })
             return { user: { id, roles }, ...tokens }
 
         } catch (error) {
@@ -269,6 +277,16 @@ export class AuthService extends PrismaClient implements OnModuleInit {
         }
 
     }
+
+    async findAllAuthLogs() {
+        try {
+            const authLogs = await this.logAuth.findMany()
+            return authLogs;
+        } catch (error) {
+            this.handleError(error, 'Error fetching authentication logs', HttpStatus.INTERNAL_SERVER_ERROR);
+        }
+    }
+
     async changePassword(changePasswordDto: ChangePasswordDto) {
         const { userId, currentPassword, newPassword, confirmNewPassword } = changePasswordDto;
         try {
