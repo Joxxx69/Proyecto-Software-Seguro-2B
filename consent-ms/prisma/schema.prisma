@@ -27,6 +27,19 @@ model Consent {
   @@index([fechaOtorgamiento]) // Índice para consultas por fecha
 }
 
+model ConsentLog {
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  consentId   String   @db.ObjectId
+  userId      String   @db.ObjectId
+  action      String   // Puede ser "CREATED", "REVOKED", "UPDATED", etc.
+  details     String?
+  createdAt   DateTime @default(now())
+  updatedAt   DateTime @updatedAt
+
+  @@index([consentId])
+  @@index([userId])
+}
+
 enum BaseLegal {
   CONSENTIMIENTO       // Art. 7.1
   CONTRATO             // Art. 7.5
