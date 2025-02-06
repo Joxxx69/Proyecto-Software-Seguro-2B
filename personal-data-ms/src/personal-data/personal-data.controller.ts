@@ -1,7 +1,7 @@
 import { Controller } from '@nestjs/common';
 import { MessagePattern, Payload } from '@nestjs/microservices';
 import { PersonalDataService } from './personal-data.service';
-import { CreatePersonalDataDto} from './dto/create-personal-data.dto';
+import { CreatePersonalDataDto } from './dto/create-personal-data.dto';
 import { UpdatePersonalDataDto } from './dto/update-personal-data.dto';
 import { PaginationDto } from './dto/pagination.dto';
 import { MongoIdDto } from './dto/mongo-id.dto';
@@ -12,7 +12,7 @@ import { UpdateARCORequestDto } from './dto/update-arco-request.dto';
 
 @Controller()
 export class PersonalDataController {
-  constructor(private readonly personalDataService: PersonalDataService) {}
+  constructor(private readonly personalDataService: PersonalDataService) { }
 
   @MessagePattern('create.personal.data')
   create(@Payload() createDto: CreatePersonalDataDto) {
@@ -27,6 +27,11 @@ export class PersonalDataController {
   @MessagePattern('find.personal.data.by.id')
   findOne(@Payload() mongoIdDto: string) {
     return this.personalDataService.findOne(mongoIdDto);
+  }
+
+  @MessagePattern('find.personal.data.by.titularId')
+  findByTitularId(@Payload() titularId: string) {
+    return this.personalDataService.findByTitularId(titularId);
   }
 
   @MessagePattern('update.personal.data')

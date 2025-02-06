@@ -80,6 +80,22 @@ export class PersonalDataController {
     }
   }
 
+
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Get('titular/:titularId')
+  async getPersonalDataByTitularId(@Param('titularId') titularId: string) {
+    try {
+      const response = await firstValueFrom(
+        this.client.send('find.personal.data.by.titularId', titularId),
+      );
+      return response;
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
+
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)
   @Delete(':id')
