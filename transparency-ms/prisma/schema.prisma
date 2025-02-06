@@ -7,43 +7,9 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelo para políticas de privacidad
 model PrivacyPolicy {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  version         String          // Versión semántica (Ej: "v2.1.0")
-  contenido       String          // Texto completo de la política
-  fechaPublicacion DateTime       @default(now())
-  fechaEfectiva   DateTime        // Fecha cuando entra en vigor
-  estado          EstadoPolicy    @default(ACTIVA)
-  cambios         String[]        // Lista de cambios destacados
-  aprobacionesRequeridas Boolean  @default(false)
-
-  @@unique([version])
-}
-
-// Modelo para registro de acceso a información de transparencia
-model TransparencyLog {
-  id              String          @id @default(auto()) @map("_id") @db.ObjectId
-  usuarioId       String          @db.ObjectId 
-  tipoAcceso      TipoAcceso      
-  fechaAcceso     DateTime        @default(now())
-  datosConsulta   Json?          
-  ipAddress       String?         // Dirección IP del acceso
-  userAgent       String?         // Información del navegador/dispositivo
-
-  @@index([usuarioId])
-}
-
-enum EstadoPolicy {
-  ACTIVA
-  HISTORICA
-}
-
-enum TipoAcceso {
-  POLITICA_PRIVACIDAD
-  FINALIDAD_TRATAMIENTO
-  DESTINATARIOS
-  DERECHOS_ARCO
-  MEDIDAS_SEGURIDAD
-  REGISTRO_ACTIVIDAD
+  id          String   @id @default(auto()) @map("_id") @db.ObjectId
+  titulo      String
+  descripcion String
+  responsable String   // Nombre del responsable de la política
 }

@@ -1,25 +1,24 @@
-import { Controller, Get, Post, Body, UseGuards } from '@nestjs/common';
+import { Controller, Get, Post, Put, Delete, Body, Param, UseGuards } from '@nestjs/common';
 import { ClientProxy, RpcException } from '@nestjs/microservices';
 import { Inject } from '@nestjs/common';
 import { NATS_SERVICE } from '../config/services.config';
 import { firstValueFrom } from 'rxjs';
 import { AuthGuard } from '../auth/guards/auth.guard';
-import { User } from '../auth/decorators';
-import { CurrentUser } from '../auth/interfaces/current-user.interface';
 import { Roles } from '../auth/decorators/roles.decorator';
 import { Role } from '../auth/enum/roles.enum';
-import { PrivacyPolicyDto } from './dto/privacy-policy.dto';
+import { CreatePrivacyPolicyDto } from './dto/create-privacy-policy.dto';
+import { UpdatePrivacyPolicyDto } from './dto/update-privacy-policy.dto';
 
 @Controller('transparency')
 export class TransparencyController {
   constructor(@Inject(NATS_SERVICE) private readonly client: ClientProxy) {}
 
   @UseGuards(AuthGuard)
-  @Get('privacy-policy/current')
-  async getCurrentPrivacyPolicy() {
+  @Get('policies')
+  async getAllPolicies() {
     try {
       return await firstValueFrom(
-        this.client.send('get.current.privacy.policy', {})
+        this.client.send('get.all.policies', {})
       );
     } catch (error) {
       throw new RpcException(error);
@@ -28,11 +27,11 @@ export class TransparencyController {
 
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)
-  @Post('privacy-policy')
-  async updatePrivacyPolicy(@Body() updateDto: PrivacyPolicyDto) {
+  @Post('policies')
+  async createPolicy(@Body() createDto: CreatePrivacyPolicyDto) {
     try {
       return await firstValueFrom(
-        this.client.send('update.privacy.policy', updateDto)
+        this.client.send('create.policy', createDto)
       );
     } catch (error) {
       throw new RpcException(error);
@@ -40,11 +39,28 @@ export class TransparencyController {
   }
 
   @UseGuards(AuthGuard)
-  @Get('access-logs')
-  async getAccessLogs(@User() user: CurrentUser) {
+  @Roles(Role.ADMIN_ROLE)
+  @Put('policies/:id')
+  async updatePolicy(
+    @Param('id') id: string,
+    @Body() updateDto: UpdatePrivacyPolicyDto
+  ) {
     try {
       return await firstValueFrom(
-        this.client.send('get.access.logs', user.id)
+        this.client.send('update.policy', { id, updateDto })
+      );
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE)
+  @Delete('policies/:id')
+  async deletePolicy(@Param('id') id: string) {
+    try {
+      return await firstValueFrom(
+        this.client.send('delete.policy', id)
       );
     } catch (error) {
       throw new RpcException(error);

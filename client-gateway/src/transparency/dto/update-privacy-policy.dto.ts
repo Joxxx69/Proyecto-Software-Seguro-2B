@@ -1,7 +1,5 @@
 export class UpdatePrivacyPolicyDto {
-    version: string;
-    contenido: string;
-    fechaEfectiva: Date;
-    cambios: string[];
-    aprobacionesRequeridas?: boolean;
+    titulo?: string;
+    descripcion?: string;
+    responsable?: string;
   }
