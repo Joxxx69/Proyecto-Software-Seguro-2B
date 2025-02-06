@@ -84,6 +84,38 @@ export class PersonalDataService extends PrismaClient implements OnModuleInit {
     }
   }
 
+  async findByTitularId(titularId: string) {
+    try {
+      const personalData = await this.personalData.findMany({
+        where: {
+          titularId,
+          eliminado: false, // Solo obtener datos que no estén eliminados
+        },
+        include: {
+          transferencias: true,
+          sensitiveDatos: true,
+          accessLogs: true,
+        },
+      });
+  
+      if (!personalData || personalData.length === 0) {
+        throw new RpcException({
+          status: HttpStatus.NOT_FOUND,
+          message: `No se encontraron datos para el titularId ${titularId}`,
+        });
+      }
+  
+      return personalData;
+    } catch (error) {
+      this.handleError(
+        error,
+        'Error al buscar datos personales por titularId',
+        HttpStatus.INTERNAL_SERVER_ERROR
+      );
+    }
+  }
+
+
   async findAll(paginationDto: PaginationDto, filterDto?: FilterPersonalDataDto) {
     try {
       const { limit = 10, page = 1 } = paginationDto;
