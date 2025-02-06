@@ -1,7 +1,8 @@
 import { Injectable, Logger, OnModuleInit } from '@nestjs/common';
 import { PrismaClient } from '@prisma/client';
 import { RpcException } from '@nestjs/microservices';
-import { PrivacyPolicyDto } from './dto/privacy-policy.dto';
+import { CreatePrivacyPolicyDto } from './dto/create-privacy-policy.dto';
+import { UpdatePrivacyPolicyDto } from './dto/update-privacy-policy.dto';
 
 @Injectable()
 export class TransparencyService extends PrismaClient implements OnModuleInit {
@@ -12,14 +13,11 @@ export class TransparencyService extends PrismaClient implements OnModuleInit {
     this.logger.log('MongoDb connected');
   }
 
-  async getCurrentPrivacyPolicy() {
+  async getAllPolicies() {
     try {
-      return await this.privacyPolicy.findFirst({
-        where: {
-          estado: 'ACTIVA'
-        },
+      return await this.privacyPolicy.findMany({
         orderBy: {
-          fechaPublicacion: 'desc'
+          titulo: 'asc'
         }
       });
     } catch (error) {
@@ -28,24 +26,10 @@ export class TransparencyService extends PrismaClient implements OnModuleInit {
     }
   }
 
-  async updatePrivacyPolicy(updateDto: PrivacyPolicyDto) {
+  async createPolicy(createDto: CreatePrivacyPolicyDto) {
     try {
-      // Desactivar política actual
-      await this.privacyPolicy.updateMany({
-        where: { estado: 'ACTIVA' },
-        data: { estado: 'HISTORICA' }
-      });
-
-      // Crear nueva política
       return await this.privacyPolicy.create({
-        data: {
-          version: updateDto.version,
-          contenido: updateDto.contenido,
-          fechaEfectiva: updateDto.fechaEfectiva,
-          fechaPublicacion: new Date(),
-          cambios: updateDto.cambios,
-          estado: 'ACTIVA'
-        }
+        data: createDto
       });
     } catch (error) {
       this.logger.error(error);
@@ -53,16 +37,22 @@ export class TransparencyService extends PrismaClient implements OnModuleInit {
     }
   }
 
-  async getAccessLogs(userId: string) {
+  async updatePolicy(id: string, updateDto: UpdatePrivacyPolicyDto) {
     try {
-      return await this.transparencyLog.findMany({
-        where: {
-          usuarioId: userId
-        },
-        orderBy: {
-          fechaAcceso: 'desc'
-        },
-        take: 50 // Limitar a los últimos 50 registros
+      return await this.privacyPolicy.update({
+        where: { id },
+        data: updateDto
+      });
+    } catch (error) {
+      this.logger.error(error);
+      throw new RpcException(error);
+    }
+  }
+
+  async deletePolicy(id: string) {
+    try {
+      return await this.privacyPolicy.delete({
+        where: { id }
       });
     } catch (error) {
       this.logger.error(error);
