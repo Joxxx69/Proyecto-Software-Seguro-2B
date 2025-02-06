@@ -7,10 +7,10 @@ import { Login } from "./components/Login/Login";
 import { LayoutWithSidebar } from "./components/LayoutWithSideBar";
 import { RecuperarContrasena } from "./components/RecuperarContrasena/RecuperarContrasena";
 import { AuthGuard } from "./components/Login/AuthGuard";
-import { PersonalData } from "./components/PersonalData/PersonalData";
+import  PersonalData from "./components/PersonalData/PersonalData";
 import { Consent } from "./components/Consent/Consent";
 import { Transparency } from "./components/Transparency/Transparency";
-import { Audit } from "./components/Audit/Audit";
+import  Audit from "./components/Audit/Audit";
 
 
 function App() {

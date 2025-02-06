@@ -56,6 +56,12 @@ export const RouteSelect = ({ expanded }) => {
         expanded={expanded}
         to="/consent"
       />
+      <CustomButton
+        Icon={TbWeight}
+        title="Auditorías"
+        expanded={expanded}
+        to="/audit"
+      />
 
     </div>
   );

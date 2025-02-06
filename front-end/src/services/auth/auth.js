@@ -54,21 +54,24 @@ export const verifyToken = async (token) => {
         const response = await axios.get('api/auth/verify', {
             headers: { 'Authorization': `Bearer ${token}` }
         });
-        return response;
+
+        console.log("Respuesta de verifyToken:", response.data); // Asegura que el user está presente
+
+        return response.data.user;  // ✅ Retornamos solo el objeto user
     } catch (error) {
-        if (error.response.status === 401) {
+        if (error.response && error.response.status === 401) {
             try {
                 await refreshAccessToken();
-            console.log('Token refrescado');
-                
-            } catch (error) {
-                console.error('Error al refrescar el token');                
+                console.log('Token refrescado');
+            } catch (refreshError) {
+                console.error('Error al refrescar el token:', refreshError);
             }
         }
-        console.error('Error al verificar el token');
+        console.error('Error al verificar el token:', error);
         throw error;
     }
 };
+
 
 export const refreshAccessToken = async () => {
     try {

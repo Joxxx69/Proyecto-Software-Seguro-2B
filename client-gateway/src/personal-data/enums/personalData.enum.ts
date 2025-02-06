@@ -25,4 +25,5 @@ export enum EstadoARCO {
     COMPLETADO = "COMPLETADO",
     RECHAZADO = "RECHAZADO"
   }
+
   
