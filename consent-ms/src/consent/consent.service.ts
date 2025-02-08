@@ -182,6 +182,36 @@ export class ConsentService extends PrismaClient {
     }
   }
 
+  async aprove(id: string) {
+    try {
+      const existingConsent = await this.findOne(id);
+
+      const approvedConsent = await this.consent.update({
+        where: { id },
+        data: {
+          estado: 'ACTIVO',
+          fechaAprobacion: new Date(),
+        },
+      });
+
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: id,
+          userId : existingConsent.titularId,
+          action: 'APPROVED',
+          details: 'Consentimiento aprobado',
+        },
+      });
+
+      this.logger.log(`Consentimiento aprobado con ID: ${approvedConsent.id}`);
+      return approvedConsent;
+    } catch (error) {
+      this.logger.error('Error al aprobar consentimiento', error);
+      throw error;
+    }
+  }
+
   async remove(id: string): Promise<{ success: boolean; message: string }> {
     try {
       const existingConsent = await this.findOne(id);

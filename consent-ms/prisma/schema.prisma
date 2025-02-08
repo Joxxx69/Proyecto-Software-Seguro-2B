@@ -17,6 +17,7 @@ model Consent {
   datosTratados    String[]
   estado           EstadoConsent     @default(PENDIENTE)
   fechaOtorgamiento DateTime         @default(now())
+  fechaAprobacion  DateTime?
   fechaRevocacion  DateTime?
   version          String
   createdAt        DateTime          @default(now())
@@ -53,6 +54,7 @@ enum EstadoConsent {
   ACTIVO
   REVOCADO             // Art. 8 (revocación)
   PENDIENTE
+  RECHAZADO
 }
 
 enum Finalidad {
