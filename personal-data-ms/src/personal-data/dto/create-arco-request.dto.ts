@@ -1,23 +1,15 @@
-import { EstadoARCO, TipoARCO } from '@prisma/client';
-import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
+import { IsString, IsEnum, IsOptional } from 'class-validator';
+import { TipoArco } from '../enums/personalData.enum';
 
 export class CreateARCORequestDto {
   @IsOptional()
   @IsString()
-  titularId?: string;
+  titularId?: string;  // Se asigna automáticamente del token
 
-  @IsNotEmpty()
-  @IsEnum(TipoARCO)
-  tipo: TipoARCO;
-
-  @IsEnum(EstadoARCO)
-  estado: EstadoARCO;
-
-  @IsArray()
-  @IsString({ each: true })
-  datosSolicitados: string[];
+  @IsEnum(TipoArco)
+  tipo: TipoArco;
 
   @IsOptional()
   @IsString()
-  motivoRechazo?: string;
+  rejectReason?: string;
 }

@@ -1,13 +1,31 @@
-import { PartialType } from '@nestjs/mapped-types';
-import { CreatePersonalDataDto } from './create-personal-data.dto';
-import { CategoriaData } from '../enums/personalData.enum';
+import { IsString, IsEmail, IsOptional, IsDateString, IsBoolean } from 'class-validator';
 
-export class UpdatePersonalDataDto extends PartialType(CreatePersonalDataDto) {
-  /*   
-   datosGenerales?: object;
-     categoria?: CategoriaData;
-     finalidad?: string;
-     transferencias?: DataTransfer[];
- 
- */
+export class UpdatePersonalDataDto {
+  @IsOptional()
+  @IsString()
+  name?: string;
+
+  @IsOptional()
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  documentNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  purpose?: string;
+
+  @IsOptional()
+  @IsString()
+  legalBasis?: string;
+
+  @IsOptional()
+  @IsDateString()
+  retentionTime?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }

@@ -1,23 +1,12 @@
-import { IsArray, IsEnum, IsNotEmpty, IsOptional, IsString } from 'class-validator';
-import { EstadoARCO, TipoARCO } from '../enums/personalData.enum';
+import { IsEnum, IsString, IsOptional } from 'class-validator';
+import { ArcoStatus } from '../enums/personalData.enum';
+
 
 export class UpdateARCORequestDto {
-  @IsOptional()
-  @IsString()
-  titularId?: string;
-
-  @IsNotEmpty()
-  @IsEnum(TipoARCO)
-  tipo: TipoARCO;
-
-  @IsEnum(EstadoARCO)
-  estado: EstadoARCO;
-
-  @IsArray()
-  @IsString({ each: true })
-  datosSolicitados: string[];
+  @IsEnum(ArcoStatus)
+  status: ArcoStatus;
 
   @IsOptional()
   @IsString()
-  motivoRechazo?: string;
+  rejectReason?: string;
 }

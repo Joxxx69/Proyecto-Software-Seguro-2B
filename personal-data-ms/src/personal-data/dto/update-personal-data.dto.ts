@@ -1,20 +1,31 @@
-// update-personal-data.dto.ts
-import { IsString, IsObject, IsEnum, IsOptional, IsArray, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { CreateDataTransferDto } from './create-personal-data.dto';
+import { IsString, IsEmail, IsOptional, IsDateString, IsBoolean } from 'class-validator';
 
 export class UpdatePersonalDataDto {
-  @IsObject()
   @IsOptional()
-  datosGenerales?: Record<string, any>;
-
   @IsString()
-  @IsOptional()
-  finalidad?: string;
+  name?: string;
 
-  @IsArray()
   @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => CreateDataTransferDto)
-  transferencias?: CreateDataTransferDto[];
+  @IsEmail()
+  email?: string;
+
+  @IsOptional()
+  @IsString()
+  documentNumber?: string;
+
+  @IsOptional()
+  @IsString()
+  purpose?: string;
+
+  @IsOptional()
+  @IsString()
+  legalBasis?: string;
+
+  @IsOptional()
+  @IsDateString()
+  retentionTime?: Date;
+
+  @IsOptional()
+  @IsBoolean()
+  isActive?: boolean;
 }
