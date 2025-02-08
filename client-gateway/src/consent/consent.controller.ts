@@ -107,6 +107,34 @@ export class ConsentController {
     }
   }
 
+  // 🔹 Aprobar un consentimiento (cambia estado a ACTIVO y asigna fechaAprobacion)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Patch('aprove/:id')
+  async aprove(@Param() params: MongoIdDto) {
+    try {
+      return await firstValueFrom(
+        this.client.send('consent.aprove', { id: params.id })
+      );
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
+  // 🔹 Rechazar un consentimiento (cambia estado a RECHAZADO)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Patch('reject/:id')
+  async reject(@Param() params: MongoIdDto) {
+    try {
+      return await firstValueFrom(
+        this.client.send('consent.reject', { id: params.id })
+      );
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
   // 🔹 Eliminar un consentimiento por ID
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)

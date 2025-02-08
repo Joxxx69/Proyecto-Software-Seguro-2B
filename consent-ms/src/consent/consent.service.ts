@@ -212,6 +212,35 @@ export class ConsentService extends PrismaClient {
     }
   }
 
+  async reject(id: string) {
+    try {
+      const existingConsent = await this.findOne(id);
+
+      const rejectedConsent = await this.consent.update({
+        where: { id },
+        data: {
+          estado: 'RECHAZADO',
+        },
+      });
+
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: id,
+          userId: existingConsent.titularId,
+          action: 'REJECTED',
+          details: 'Consentimiento rechazado',
+        },
+      });
+
+      this.logger.log(`Consentimiento rechazado con ID: ${rejectedConsent.id}`);
+      return rejectedConsent;
+    } catch (error) {
+      this.logger.error('Error al rechazar consentimiento', error);
+      throw error;
+    }
+  }
+
   async remove(id: string): Promise<{ success: boolean; message: string }> {
     try {
       const existingConsent = await this.findOne(id);

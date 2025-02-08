@@ -17,6 +17,8 @@ export enum MetodoObtencion {
 export enum EstadoConsent {
     ACTIVO = 'ACTIVO',
     REVOCADO = 'REVOCADO',
+    PENDIENTE = 'PENDIENTE',
+    RECHAZADO = 'RECHAZADO',
 };
 
 export enum Finalidad {

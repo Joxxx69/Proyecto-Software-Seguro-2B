@@ -45,4 +45,44 @@ export const consentService = {
         }
     },
 
+    // Aprobar un consentimiento
+    approveConsent: async (consentId) => {
+        try {
+            const accessToken = getToken('accessToken');
+            if (!accessToken) {
+                throw new Error('No se encontró token de acceso');
+            }
+
+            const response = await axios.patch(`${API_URL}/aprove/${consentId}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error al aprobar consentimiento", error);
+            throw error;
+        }
+    },
+
+    // Rechazar un consentimiento
+    rejectConsent: async (consentId) => {
+        try {
+            const accessToken = getToken('accessToken');
+            if (!accessToken) {
+                throw new Error('No se encontró token de acceso');
+            }
+
+            const response = await axios.patch(`${API_URL}/reject/${consentId}`, {}, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error al rechazar consentimiento", error);
+            throw error;
+        }
+    },
+
 };
