@@ -31,7 +31,6 @@ export class ConsentService extends PrismaClient {
           finalidades: createConsentDto.finalidades,
           baseLegal: createConsentDto.baseLegal,
           datosTratados: createConsentDto.datosTratados,
-          metodoObtencion: createConsentDto.metodoObtencion,
           version: createConsentDto.version,
         },
       });
@@ -121,7 +120,6 @@ export class ConsentService extends PrismaClient {
           finalidades: updateConsentDto.finalidades,
           baseLegal: updateConsentDto.baseLegal,
           datosTratados: updateConsentDto.datosTratados,
-          metodoObtencion: updateConsentDto.metodoObtencion,
           version: updateConsentDto.version,
           estado: updateConsentDto.estado,
         },

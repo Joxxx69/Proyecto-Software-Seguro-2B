@@ -25,7 +25,6 @@ export const Consent = () => {
                                 <th scope="col">Estado</th>
                                 <th scope="col">Finalidades</th>
                                 <th scope="col">Base Legal</th>
-                                <th scope="col">Método de Obtención</th>
                                 <th scope="col">Fecha de Otorgamiento</th>
                                 <th scope="col">Fecha de Revocación</th>
                                 <th scope="col">Acciones</th> {/* Columna para el botón de revocar */}
@@ -38,7 +37,6 @@ export const Consent = () => {
                                     <td>{consent.estado}</td>
                                     <td>{consent.finalidades.join(", ")}</td>
                                     <td>{consent.baseLegal}</td>
-                                    <td>{consent.metodoObtencion}</td>
                                     <td>{new Date(consent.fechaOtorgamiento).toLocaleDateString()}</td>
                                     <td>{consent.fechaRevocacion ? new Date(consent.fechaRevocacion).toLocaleDateString() : "No revocado"}</td>
                                     <td>

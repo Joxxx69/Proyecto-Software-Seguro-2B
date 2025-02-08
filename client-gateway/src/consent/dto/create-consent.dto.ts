@@ -1,5 +1,5 @@
 import { IsString, IsArray, IsEnum, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
-import { BaseLegal, MetodoObtencion } from '../enums/consent.enum';
+import { BaseLegal, Finalidad } from '../enums/consent.enum';
 
 export class CreateConsentDto {
   @IsString()
@@ -19,10 +19,6 @@ export class CreateConsentDto {
   @IsString({ each: true })
   @IsNotEmpty()
   datosTratados: string[];
-
-  @IsEnum(MetodoObtencion)
-  @IsNotEmpty()
-  metodoObtencion: MetodoObtencion;
 
   @IsString()
   @IsNotEmpty()
