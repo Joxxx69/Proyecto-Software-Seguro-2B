@@ -195,15 +195,21 @@ export class PersonalDataService extends PrismaClient {
   async findAllARCORequests(paginationDto: PaginationDto, filterDto?: FilterARCORequestDto) {
     try {
       const { page = 1, limit = 10 } = paginationDto;
-      const where = filterDto ? {
-        titularId: filterDto.titularId,
-        tipo: filterDto.tipo,
-        status: filterDto.status,
-        requestDate: {
-          gte: filterDto.dateFrom,
-          lte: filterDto.dateTo
+
+      // Construimos el where de manera más segura
+      const where: any = {};
+
+      if (filterDto) {
+        if (filterDto.titularId) where.titularId = filterDto.titularId;
+        if (filterDto.tipo) where.tipo = filterDto.tipo;
+        if (filterDto.status) where.status = filterDto.status;
+
+        if (filterDto.dateFrom || filterDto.dateTo) {
+          where.requestDate = {};
+          if (filterDto.dateFrom) where.requestDate.gte = new Date(filterDto.dateFrom);
+          if (filterDto.dateTo) where.requestDate.lte = new Date(filterDto.dateTo);
         }
-      } : {};
+      }
 
       const [total, data] = await Promise.all([
         this.arcoRequest.count({ where }),

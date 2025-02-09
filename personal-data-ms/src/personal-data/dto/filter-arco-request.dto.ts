@@ -1,5 +1,6 @@
-import { IsEnum, IsString, IsOptional, IsDateString } from 'class-validator';
-import { ArcoStatus, TipoArco } from '../enums/personalData.enum';
+import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
+import { ArcoStatus, TipoArco } from "../enums/personalData.enum";
+
 export class FilterARCORequestDto {
   @IsOptional()
   @IsString()
@@ -15,9 +16,9 @@ export class FilterARCORequestDto {
 
   @IsOptional()
   @IsDateString()
-  dateFrom?: Date;
+  dateFrom?: string;
 
   @IsOptional()
   @IsDateString()
-  dateTo?: Date;
+  dateTo?: string;
 }

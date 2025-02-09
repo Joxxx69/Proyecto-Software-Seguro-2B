@@ -11,7 +11,7 @@ import { CreateSensitiveDataDto } from './dto/create-sensitive-data.dto';
 
 @Controller()
 export class PersonalDataController {
-  constructor(private readonly personalDataService: PersonalDataService) {}
+  constructor(private readonly personalDataService: PersonalDataService) { }
 
   // Personal Data Endpoints
   @MessagePattern('personaldata.create')

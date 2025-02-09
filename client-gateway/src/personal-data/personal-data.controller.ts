@@ -7,7 +7,7 @@ import { Roles } from 'src/auth/decorators/roles.decorator';
 import { Role } from 'src/auth/enum/roles.enum';
 import { User } from 'src/auth/decorators';
 import { CurrentUser } from 'src/auth/interfaces/current-user.interface';
-import {CreatePersonalDataDto} from './dto/create-personal-data.dto';
+import { CreatePersonalDataDto } from './dto/create-personal-data.dto';
 import { CreateSensitiveDataDto } from './dto/create-sensitive-data.dto';
 import { UpdatePersonalDataDto } from './dto/update-personal-data.dto';
 import { CreateARCORequestDto } from './dto/create-arco-request.dto';
@@ -22,7 +22,7 @@ export class PersonalDataController {
   // Personal Data Endpoints
   @Post('create')
   @UseGuards(AuthGuard)
-  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Roles(Role.USER_ROLE)
   async createPersonalData(
     @Body() createDto: CreatePersonalDataDto,
     @User() user: CurrentUser
@@ -37,7 +37,7 @@ export class PersonalDataController {
     }
   }
 
-  @Get()
+  @Get('all-data')
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)
   async getAllPersonalData(@Query() paginationDto: PaginationDto) {
@@ -94,7 +94,7 @@ export class PersonalDataController {
 
   @Delete(':id')
   @UseGuards(AuthGuard)
-  @Roles(Role.ADMIN_ROLE)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
   async deletePersonalData(@Param('id') id: string) {
     try {
       return await firstValueFrom(
@@ -108,7 +108,7 @@ export class PersonalDataController {
   // Sensitive Data Endpoints
   @Post('sensitive')
   @UseGuards(AuthGuard)
-  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Roles(Role.USER_ROLE)
   async createSensitiveData(
     @Body() createDto: CreateSensitiveDataDto,
     @User() user: CurrentUser
@@ -126,7 +126,7 @@ export class PersonalDataController {
   // ARCO Request Endpoints
   @Post('arco')
   @UseGuards(AuthGuard)
-  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Roles(Role.USER_ROLE)
   async createARCORequest(
     @Body() createDto: CreateARCORequestDto,
     @User() user: CurrentUser
@@ -141,7 +141,7 @@ export class PersonalDataController {
     }
   }
 
-  @Get('arco')
+  @Get('arco/requests')
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)
   async getAllARCORequests(
@@ -149,8 +149,23 @@ export class PersonalDataController {
     @Query() filterDto: FilterARCORequestDto
   ) {
     try {
+      // Combinamos los DTOs en un solo objeto payload
+      const payload = {
+        paginationDto: {
+          page: parseInt(paginationDto.page?.toString() || '1'),
+          limit: parseInt(paginationDto.limit?.toString() || '10')
+        },
+        filterDto: filterDto ? {
+          titularId: filterDto.titularId,
+          tipo: filterDto.tipo,
+          status: filterDto.status,
+          dateFrom: filterDto.dateFrom ? new Date(filterDto.dateFrom) : undefined,
+          dateTo: filterDto.dateTo ? new Date(filterDto.dateTo) : undefined
+        } : undefined
+      };
+
       return await firstValueFrom(
-        this.client.send('arco.find.all', { paginationDto, filterDto })
+        this.client.send('arco.find.all', payload)
       );
     } catch (error) {
       throw new RpcException(error);
