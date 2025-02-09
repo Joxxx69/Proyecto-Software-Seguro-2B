@@ -14,7 +14,7 @@ export const getPersonalData = async (id) => {
 
       console.log("🟢 Enviando solicitud a Personal Data con token:", token);
 
-      const response = await api.get(`personal-data/${id}`, {
+      const response = await api.get(`personal-data/titular/${id}`, {
           headers: { Authorization: `Bearer ${token}` }
       });
 

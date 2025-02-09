@@ -41,55 +41,47 @@ export const Login = () => {
     setErrors(validateSignIn(email, password));
 
     if (errors.length > 0) {
-      Swal.fire({
-        title: "Formato incorrecto",
-        text: errors[0],
-        icon: "error",
-        confirmButtonText: "Aceptar",
-        confirmButtonColor: "#16243e",
-      });
-      return;
-    } else {
-      setErrors([]);
-      setLoadingLogin(true);
-      try {
-        const { accessToken } = await signIn(email, password);
-        // Decodificar el JWT
-        const decodedToken = jwtDecode(accessToken);
-
-        // Verificar si tiene el rol ADMIN_ROLE
-        if (decodedToken.roles && decodedToken.roles.includes("ADMIN_ROLE")) {
-          // Guardar token en cookies
-          saveToken("accessToken", accessToken);
-
-          // Redirigir al dashboard
-          window.location.href = "/";
-        } else {
-          // Mostrar mensaje de error
-          Swal.fire({
-            title: "Acceso denegado",
-            text: "No tienes permisos para acceder a esta sección.",
+        Swal.fire({
+            title: "Formato incorrecto",
+            text: errors[0],
             icon: "error",
             confirmButtonText: "Aceptar",
             confirmButtonColor: "#16243e",
-          });
-        }
-      } catch (error) {
+        });
+        return;
+    }
+
+    setErrors([]);
+    setLoadingLogin(true);
+
+    try {
+        const { accessToken } = await signIn(email, password);
+        const decodedToken = jwtDecode(accessToken);
+
+        // Guardar el token sin importar el rol
+        saveToken("accessToken", accessToken);
+
+        console.log("✅ Usuario autenticado:", decodedToken);
+
+        // Redirigir al dashboard general
+        window.location.href = "/";
+
+    } catch (error) {
         console.error("Error durante el inicio de sesión:", error.message);
 
         // Mostrar error con SweetAlert
         Swal.fire({
-          icon: "error",
-          title: "Error al iniciar sesión",
-          text: error.message,
-          confirmButtonText: "Aceptar",
-          confirmButtonColor: "#16243e",
+            icon: "error",
+            title: "Error al iniciar sesión",
+            text: error.message,
+            confirmButtonText: "Aceptar",
+            confirmButtonColor: "#16243e",
         });
-      } finally {
+    } finally {
         setLoadingLogin(false);
-      }
     }
-  };
+};
+
 
   if (loading) {
     // Mostrar un loader mientras se verifica

@@ -45,12 +45,6 @@ export const RouteSelect = ({ expanded }) => {
         to="/personal-data"
       />
       <CustomButton
-        Icon={TbUsers}
-        title="Transparencia"
-        expanded={expanded}
-        to="/transparency"
-      />
-      <CustomButton
         Icon={TbWeight}
         title="Consentimiento"
         expanded={expanded}

@@ -1,11 +1,12 @@
 import { useState, useEffect } from 'react';
-import { isTokenValid, getToken } from '../services/token/store';
+import { getToken } from '../services/token/store';
 import { verifyToken, getUserInfo } from '../services/auth/auth';
 
 export const useAuth = () => {
     const [loading, setLoading] = useState(true);
     const [isAuthenticated, setIsAuthenticated] = useState(false);
     const [user, setUser] = useState(null);
+    const [roles, setRoles] = useState([]);  // Guardamos los roles
 
     useEffect(() => {
         const verifyAuthentication = async () => {
@@ -16,6 +17,7 @@ export const useAuth = () => {
                 console.warn("⚠️ No hay token en el almacenamiento local.");
                 setIsAuthenticated(false);
                 setUser(null);
+                setRoles([]);
                 setLoading(false);
                 return;
             }
@@ -29,16 +31,18 @@ export const useAuth = () => {
                     throw new Error("El usuario autenticado no tiene un ID válido.");
                 }
 
-                // Obtener datos personales del usuario
+                // Obtener información detallada del usuario
                 const fullUserData = await getUserInfo(userData.id, token);
                 console.log("📌 Datos completos del usuario:", fullUserData);
 
                 setUser(fullUserData);
+                setRoles(fullUserData.roles || []);  // Guardamos los roles
                 setIsAuthenticated(true);
             } catch (error) {
                 console.error("❌ Error verificando autenticación:", error);
                 setIsAuthenticated(false);
                 setUser(null);
+                setRoles([]);
             }
 
             setLoading(false);
@@ -47,5 +51,5 @@ export const useAuth = () => {
         verifyAuthentication();
     }, []);
 
-    return { loading, isAuthenticated, user };
+    return { loading, isAuthenticated, user, roles };
 };
