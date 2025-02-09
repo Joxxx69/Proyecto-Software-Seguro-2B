@@ -31,7 +31,6 @@ export class ConsentService extends PrismaClient {
           finalidades: createConsentDto.finalidades,
           baseLegal: createConsentDto.baseLegal,
           datosTratados: createConsentDto.datosTratados,
-          metodoObtencion: createConsentDto.metodoObtencion,
           version: createConsentDto.version,
         },
       });
@@ -56,9 +55,7 @@ export class ConsentService extends PrismaClient {
 
   async findAll(): Promise<any[]> {
     try {
-      const consents = await this.consent.findMany({
-        where: { estado: 'ACTIVO' }, // Solo devuelve consentimientos activos
-      });
+      const consents = await this.consent.findMany();
 
       this.logger.log(`Encontrados ${consents.length} consentimientos`);
       return consents;
@@ -123,7 +120,6 @@ export class ConsentService extends PrismaClient {
           finalidades: updateConsentDto.finalidades,
           baseLegal: updateConsentDto.baseLegal,
           datosTratados: updateConsentDto.datosTratados,
-          metodoObtencion: updateConsentDto.metodoObtencion,
           version: updateConsentDto.version,
           estado: updateConsentDto.estado,
         },
@@ -182,6 +178,65 @@ export class ConsentService extends PrismaClient {
       return revokedConsent;
     } catch (error) {
       this.logger.error('Error al revocar consentimiento', error);
+      throw error;
+    }
+  }
+
+  async aprove(id: string) {
+    try {
+      const existingConsent = await this.findOne(id);
+
+      const approvedConsent = await this.consent.update({
+        where: { id },
+        data: {
+          estado: 'ACTIVO',
+          fechaAprobacion: new Date(),
+        },
+      });
+
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: id,
+          userId : existingConsent.titularId,
+          action: 'APPROVED',
+          details: 'Consentimiento aprobado',
+        },
+      });
+
+      this.logger.log(`Consentimiento aprobado con ID: ${approvedConsent.id}`);
+      return approvedConsent;
+    } catch (error) {
+      this.logger.error('Error al aprobar consentimiento', error);
+      throw error;
+    }
+  }
+
+  async reject(id: string) {
+    try {
+      const existingConsent = await this.findOne(id);
+
+      const rejectedConsent = await this.consent.update({
+        where: { id },
+        data: {
+          estado: 'RECHAZADO',
+        },
+      });
+
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: id,
+          userId: existingConsent.titularId,
+          action: 'REJECTED',
+          details: 'Consentimiento rechazado',
+        },
+      });
+
+      this.logger.log(`Consentimiento rechazado con ID: ${rejectedConsent.id}`);
+      return rejectedConsent;
+    } catch (error) {
+      this.logger.error('Error al rechazar consentimiento', error);
       throw error;
     }
   }

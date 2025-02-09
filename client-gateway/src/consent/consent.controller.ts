@@ -22,7 +22,7 @@ export class ConsentController {
 
   // 🔹 Crear un nuevo consentimiento
   @UseGuards(AuthGuard)
-  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Roles(Role.ADMIN_ROLE)
   @Post('create')
   async create(@Body() createConsentDto: CreateConsentDto, @User() user: CurrentUser) {
     try {
@@ -49,9 +49,23 @@ export class ConsentController {
     }
   }
 
-  // 🔹 Obtener un consentimiento por ID
+  // 🔹 Obtener todos los consentimientos de un titular
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Get('find-by-titular')
+  async findByTitular(@User() user: CurrentUser) {
+    try {
+      return await firstValueFrom(
+        this.client.send('consent.findByTitular', user.id)
+      );
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
+  // 🔹 Obtener un consentimiento por ID
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE)
   @Get('findOne/:id')
   async findOne(@Param() params: MongoIdDto) {
     try {
@@ -66,7 +80,7 @@ export class ConsentController {
 
   // 🔹 Actualizar un consentimiento por ID
   @UseGuards(AuthGuard)
-  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Roles(Role.ADMIN_ROLE)
   @Patch('update/:id')
   async update(@Param() params: MongoIdDto, @Body() updateConsentDto: UpdateConsentDto) {
     try {
@@ -87,6 +101,34 @@ export class ConsentController {
     try {
       return await firstValueFrom(
         this.client.send('consent.revoke', { id: params.id })
+      );
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
+  // 🔹 Aprobar un consentimiento (cambia estado a ACTIVO y asigna fechaAprobacion)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Patch('aprove/:id')
+  async aprove(@Param() params: MongoIdDto) {
+    try {
+      return await firstValueFrom(
+        this.client.send('consent.aprove', { id: params.id })
+      );
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
+
+  // 🔹 Rechazar un consentimiento (cambia estado a RECHAZADO)
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+  @Patch('reject/:id')
+  async reject(@Param() params: MongoIdDto) {
+    try {
+      return await firstValueFrom(
+        this.client.send('consent.reject', { id: params.id })
       );
     } catch (error) {
       throw new RpcException(error);

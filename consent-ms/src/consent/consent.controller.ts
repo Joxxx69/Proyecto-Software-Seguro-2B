@@ -48,6 +48,18 @@ export class ConsentController {
     return await this.consentService.revoke(mongoIdDto.id);
   }
 
+  @MessagePattern('consent.aprove')
+  async aprove(@Payload() mongoIdDto: MongoIdDto): Promise<Consent> {
+    this.logger.log(`Aprobando consentimiento ID: ${mongoIdDto.id}`);
+    return await this.consentService.aprove(mongoIdDto.id);
+  }
+
+  @MessagePattern('consent.reject')
+  async reject(@Payload() mongoIdDto: MongoIdDto): Promise<Consent> {
+    this.logger.log(`Rechazando consentimiento ID: ${mongoIdDto.id}`);
+    return await this.consentService.reject(mongoIdDto.id);
+  }
+
   @MessagePattern('consent.remove')
   async remove(@Payload() mongoIdDto: MongoIdDto) {
     this.logger.log(`Eliminando consentimiento ID: ${mongoIdDto.id}`);

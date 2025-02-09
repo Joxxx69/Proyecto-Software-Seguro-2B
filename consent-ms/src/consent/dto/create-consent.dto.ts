@@ -1,5 +1,5 @@
 import { IsString, IsArray, IsEnum, IsNotEmpty, IsOptional, IsMongoId } from 'class-validator';
-import { BaseLegal, MetodoObtencion } from '@prisma/client';
+import { BaseLegal, Finalidad } from '@prisma/client';
 
 export class CreateConsentDto {
   @IsString()
@@ -9,7 +9,7 @@ export class CreateConsentDto {
   @IsArray()
   @IsString({ each: true })
   @IsNotEmpty()
-  finalidades: string[];
+  finalidades: Finalidad[];
 
   @IsEnum(BaseLegal)
   @IsNotEmpty()
@@ -19,10 +19,6 @@ export class CreateConsentDto {
   @IsString({ each: true })
   @IsNotEmpty()
   datosTratados: string[];
-
-  @IsEnum(MetodoObtencion)
-  @IsNotEmpty()
-  metodoObtencion: MetodoObtencion;
 
   @IsString()
   @IsNotEmpty()

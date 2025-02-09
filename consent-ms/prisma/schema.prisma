@@ -1,4 +1,5 @@
 // schema.prisma
+
 generator client {
   provider = "prisma-client-js"
 }
@@ -11,12 +12,12 @@ datasource db {
 model Consent {
   id               String            @id @default(auto()) @map("_id") @db.ObjectId
   titularId        String            @db.ObjectId
-  finalidades      String[]
+  finalidades      Finalidad[]       // Ahora usa un enum
   baseLegal        BaseLegal
   datosTratados    String[]
-  metodoObtencion  MetodoObtencion
-  estado           EstadoConsent     @default(ACTIVO)
+  estado           EstadoConsent     @default(PENDIENTE)
   fechaOtorgamiento DateTime         @default(now())
+  fechaAprobacion  DateTime?
   fechaRevocacion  DateTime?
   version          String
   createdAt        DateTime          @default(now())
@@ -52,11 +53,21 @@ enum BaseLegal {
 enum EstadoConsent {
   ACTIVO
   REVOCADO             // Art. 8 (revocación)
+  PENDIENTE
+  RECHAZADO
 }
 
-enum MetodoObtencion {
-  FORMULARIO_WEB       // Ej: checkbox en un formulario
-  CORREO_ELECTRONICO
-  APP_MOVIL
-  DOCUMENTO_FISICO
+enum Finalidad {
+  REGISTRO_AUTENTICACION
+  PRESTACION_SERVICIO
+  GESTION_PAGOS
+  SEGURIDAD_PREVENCION_FRAUDE
+  PUBLICIDAD_PERSONALIZADA
+  ANALISIS_MEJORA_SERVICIO
+  PERSONALIZACION_CONTENIDO
+  INTEGRACION_TERCEROS
+  CUMPLIMIENTO_LEGAL
+  GESTION_DERECHOS_USUARIO
+  ENVIO_NOTIFICACIONES
+  GESTION_SOPORTE_TECNICO
 }

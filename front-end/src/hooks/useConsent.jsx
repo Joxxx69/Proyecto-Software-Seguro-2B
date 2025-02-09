@@ -43,7 +43,43 @@ export function useConsent() {
       } catch (error) {
           console.error("Error al revocar el consentimiento", error);
       }
-  };
+    };
 
-  return { consents, loading, revokeConsent };
+    const approveConsent = async (consentId) => {
+        try {
+            // Llamar a la API para aprobar el consentimiento
+            const updatedConsent = await consentService.approveConsent(consentId);
+    
+            // Actualizar el estado local para reflejar la aprobación
+            setConsents((prevConsents) =>
+                prevConsents.map((consent) =>
+                    consent.id === consentId
+                        ? { ...consent, estado: "APROBADO", fechaOtorgamiento: new Date() }
+                        : consent
+                )
+            );
+        } catch (error) {
+            console.error("Error al aprobar el consentimiento", error);
+        }
+    }
+
+    const rejectConsent = async (consentId) => {
+        try {
+            // Llamar a la API para rechazar el consentimiento
+            const updatedConsent = await consentService.rejectConsent(consentId);
+    
+            // Actualizar el estado local para reflejar el rechazo
+            setConsents((prevConsents) =>
+                prevConsents.map((consent) =>
+                    consent.id === consentId
+                        ? { ...consent, estado: "RECHAZADO" }
+                        : consent
+                )
+            );
+        } catch (error) {
+            console.error("Error al rechazar el consentimiento", error);
+        }
+    }
+
+  return { consents, loading, revokeConsent, approveConsent, rejectConsent };
 }
