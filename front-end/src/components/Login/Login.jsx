@@ -215,13 +215,17 @@ export const Login = () => {
               </FormControl>
             </Grid>
 
+            <div className="flex items-center justify-between my-4">
+              <a href="/recuperar-contrasena" className="text-sm text-azul-marino-500 hover:underline">
+                ¿Olvidaste tu contraseña?
+              </a>
+              <a href="/register" className="text-sm text-azul-marino-500 hover:underline">
+                ¿No tienes cuenta? Regístrate
+              </a>
+            </div>
+
             <div className="flex items-center justify-center">
-              <button
-                type="submit"
-                className={`bg-azul-marino-500 hover:bg-azul-marino-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-                  blocked ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                disabled={loadingLogin || blocked}>
+              <button type="submit" disabled={loadingLogin || blocked}>
                 {loadingLogin ? "Cargando..." : blocked ? `Espera ${timer}s` : "Iniciar Sesión"}
               </button>
 
