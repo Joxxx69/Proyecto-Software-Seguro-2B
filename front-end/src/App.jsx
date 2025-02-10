@@ -9,6 +9,7 @@ import { AuthGuard } from "./components/Login/AuthGuard";
 import PersonalData from "./components/PersonalData/PersonalData";
 import { Consent } from "./components/Consent/Consent";
 import { CreateConsent } from "./components/Consent/CreateConsent";
+import { ConsentLogs } from "./components/Consent/ConsentLogs";
 import { Transparency } from "./components/Transparency/Transparency";
 import Audit from "./components/Audit/Audit";
 import {Register } from "./components/Register/Register";
@@ -60,6 +61,14 @@ function App() {
             element={
               <AuthGuard allowedRoles={["ADMIN_ROLE"]}>
                 <CreateConsent/>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="consentLogs"
+            element={
+              <AuthGuard allowedRoles={["ADMIN_ROLE"]}>
+                <ConsentLogs/>
               </AuthGuard>
             }
           />

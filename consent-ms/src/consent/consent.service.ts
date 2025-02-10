@@ -179,10 +179,7 @@ export class ConsentService extends PrismaClient {
     }
   }
   
-  
-  
-
-  async findAllAuthLogs() {
+  async findAllConsentLogs() {
     try {
         const authLogs = await this.consentLog.findMany();
         return authLogs;

@@ -143,4 +143,23 @@ export const consentService = {
         }
     },
 
+    getAllLogs: async () => {
+        try {
+          const accessToken = getToken('accessToken');
+          if (!accessToken) {
+            throw new Error('No se encontró token de acceso');
+          }
+    
+          const response = await axios.get(`${API_URL}/logs`, {
+            headers: {
+              Authorization: `Bearer ${accessToken}`,
+            },
+          });
+          return response.data;
+        } catch (error) {
+          console.error("Error al obtener los logs de consentimientos", error);
+          throw error;
+        }
+    },
+
 };

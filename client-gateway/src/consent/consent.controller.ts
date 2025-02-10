@@ -172,4 +172,18 @@ async updateRevokeDate(@Param() params: MongoIdDto, @Body() updateConsentDto: Up
       throw new RpcException(error);
     }
   }
+
+  // Otener todos los logs de consentimientos
+  @UseGuards(AuthGuard)
+  @Roles(Role.ADMIN_ROLE)
+  @Get('logs')
+  async getLogs() {
+    try {
+      return await firstValueFrom(
+        this.client.send('consent.find.all.consent.logs', {})
+      );
+    } catch (error) {
+      throw new RpcException(error);
+    }
+  }
 }
