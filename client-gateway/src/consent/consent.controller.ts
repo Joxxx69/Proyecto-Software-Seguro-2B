@@ -93,6 +93,29 @@ export class ConsentController {
     }
   }
 
+  // 🔹 Actualizar la fecha de revocación de un consentimiento
+  @UseGuards(AuthGuard)
+@Roles(Role.ADMIN_ROLE, Role.USER_ROLE)
+@Patch('update-revoke-date/:id')
+async updateRevokeDate(@Param() params: MongoIdDto, @Body() updateConsentDto: UpdateConsentDto) {
+  try {
+    // Validar la fecha antes de enviarla al microservicio
+    if (updateConsentDto.fechaRevocacion) {
+      const parsedDate = new Date(updateConsentDto.fechaRevocacion);
+      if (isNaN(parsedDate.getTime())) {
+        throw new RpcException('Formato de fecha inválido');
+      }
+    }
+
+    return await firstValueFrom(
+      this.client.send('consent.updateRevokeDate', { id: params.id, data: updateConsentDto })
+    );
+  } catch (error) {
+    throw new RpcException(error);
+  }
+}
+
+
   // 🔹 Revocar un consentimiento (cambia estado a REVOCADO y asigna fechaRevocacion)
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE, Role.USER_ROLE)

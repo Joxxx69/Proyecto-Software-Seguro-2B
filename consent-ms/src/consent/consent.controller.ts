@@ -42,6 +42,12 @@ export class ConsentController {
     return await this.consentService.update(payload.id, payload.data);
   }
 
+  @MessagePattern('consent.updateRevokeDate')
+  async updateRevokeDate(@Payload() payload: { id: string; data: UpdateConsentDto }): Promise<Consent> {
+    this.logger.log(`Actualizando fecha de revocación del consentimiento ID: ${payload.id}`);
+    return await this.consentService.updateRevokeDate(payload.id, payload.data);
+  }
+
   @MessagePattern('consent.revoke')
   async revoke(@Payload() mongoIdDto: MongoIdDto): Promise<Consent> {
     this.logger.log(`Revocando consentimiento ID: ${mongoIdDto.id}`);

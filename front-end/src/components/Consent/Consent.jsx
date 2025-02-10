@@ -1,8 +1,10 @@
-import React from "react";
+import React, { useState } from "react";
 import { useConsent } from "../../hooks/useConsent";
 
 export const Consent = () => {
-  const { consents, loading, revokeConsent, approveConsent, rejectConsent } = useConsent();
+  const { consents, loading, revokeConsent, approveConsent, rejectConsent, updateRevokeDate } = useConsent();
+  const [editingRevokeDate, setEditingRevokeDate] = useState(null);
+  const [revokeDate, setRevokeDate] = useState("");
 
   if (loading) {
     return (
@@ -40,6 +42,19 @@ export const Consent = () => {
       month: 'long',
       day: 'numeric'
     });
+  };
+
+  const handleRevokeDateSubmit = async (consentId) => {
+    try {
+      const consentData = {
+        fechaRevocacion: revokeDate
+      };
+      await updateRevokeDate(consentId, consentData);
+      setEditingRevokeDate(null);
+      setRevokeDate("");
+    } catch (error) {
+      console.error("Error al programar la revocación:", error);
+    }
   };
 
   return (
@@ -100,7 +115,7 @@ export const Consent = () => {
                     </div>
                   </div>
 
-                  <div className="mt-4 flex gap-2 justify-end">
+                  <div className="mt-4 flex flex-wrap gap-2 justify-end items-center">
                     {consent.estado === "PENDIENTE" && (
                       <>
                         <button
@@ -118,12 +133,46 @@ export const Consent = () => {
                       </>
                     )}
                     {consent.estado === "ACTIVO" && (
-                      <button
-                        className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
-                        onClick={() => revokeConsent(consent.id)}
-                      >
-                        Revocar
-                      </button>
+                      <>
+                        <button
+                          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-red-700 bg-red-50 hover:bg-red-100 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-red-500"
+                          onClick={() => revokeConsent(consent.id)}
+                        >
+                          Revocar Ahora
+                        </button>
+                        {editingRevokeDate === consent.id ? (
+                          <div className="flex gap-2 items-center">
+                            <input
+                              type="datetime-local"
+                              className="rounded-md border-gray-300 shadow-sm focus:border-indigo-500 focus:ring-indigo-500 sm:text-sm"
+                              value={revokeDate}
+                              onChange={(e) => setRevokeDate(e.target.value)}
+                            />
+                            <button
+                              className="inline-flex items-center px-3 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                              onClick={() => handleRevokeDateSubmit(consent.id)}
+                            >
+                              Guardar
+                            </button>
+                            <button
+                              className="inline-flex items-center px-3 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                              onClick={() => {
+                                setEditingRevokeDate(null);
+                                setRevokeDate("");
+                              }}
+                            >
+                              Cancelar
+                            </button>
+                          </div>
+                        ) : (
+                          <button
+                            className="inline-flex items-center px-4 py-2 border border-gray-300 text-sm font-medium rounded-md text-gray-700 bg-white hover:bg-gray-50 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+                            onClick={() => setEditingRevokeDate(consent.id)}
+                          >
+                            Programar Revocación
+                          </button>
+                        )}
+                      </>
                     )}
                   </div>
                 </div>

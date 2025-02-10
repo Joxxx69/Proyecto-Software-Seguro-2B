@@ -143,6 +143,45 @@ export class ConsentService extends PrismaClient {
     }
   }
 
+  async updateRevokeDate(id: string, updateConsentDto: UpdateConsentDto) {
+    try {
+      const existingConsent = await this.findOne(id);
+  
+      // Validar y convertir la fecha
+      let fechaRevocacion: Date | null = null;
+      if (updateConsentDto.fechaRevocacion) {
+        fechaRevocacion = new Date(updateConsentDto.fechaRevocacion);
+        if (isNaN(fechaRevocacion.getTime())) {
+          throw new Error('Formato de fecha inválido');
+        }
+      }
+  
+      const updatedConsent = await this.consent.update({
+        where: { id },
+        data: { fechaRevocacion },
+      });
+  
+      // Registrar la acción en el log
+      await this.consentLog.create({
+        data: {
+          consentId: id,
+          userId: existingConsent.titularId,
+          action: 'REVOKED',
+          details: 'Fecha de revocación actualizada',
+        },
+      });
+  
+      this.logger.log(`Fecha de revocación actualizada para el consentimiento con ID: ${updatedConsent.id}`);
+      return updatedConsent;
+    } catch (error) {
+      this.logger.error('Error al actualizar la fecha de revocación del consentimiento', error);
+      throw error;
+    }
+  }
+  
+  
+  
+
   async findAllAuthLogs() {
     try {
         const authLogs = await this.consentLog.findMany();

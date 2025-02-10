@@ -85,4 +85,23 @@ export const consentService = {
         }
     },
 
+    updateRevokeDate: async (consentId, consentData) => {
+        try {
+            const accessToken = getToken('accessToken');
+            if (!accessToken) {
+                throw new Error('No se encontró token de acceso');
+            }
+
+            const response = await axios.patch(`${API_URL}/update-revoke-date/${consentId}`, consentData, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`,
+                },
+            });
+            return response.data;
+        } catch (error) {
+            console.error("Error al actualizar consentimiento", error);
+            throw error;
+        }
+    },
+
 };

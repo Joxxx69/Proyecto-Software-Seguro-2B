@@ -81,5 +81,23 @@ export function useConsent() {
         }
     }
 
-  return { consents, loading, revokeConsent, approveConsent, rejectConsent };
+    const updateRevokeDate = async (consentId, consentData) => {
+        try {
+            // Llamar a la API para actualizar la fecha de revocación
+            const updatedConsent = await consentService.updateRevokeDate(consentId, consentData);
+    
+            // Actualizar el estado local para reflejar la nueva fecha de revocación
+            setConsents((prevConsents) =>
+                prevConsents.map((consent) =>
+                    consent.id === consentId
+                        ? { ...consent, fechaRevocacion: consentData.fechaRevocacion }
+                        : consent
+                )
+            );
+        } catch (error) {
+            console.error("Error al actualizar la fecha de revocación", error);
+        }
+    }
+
+  return { consents, loading, revokeConsent, approveConsent, rejectConsent, updateRevokeDate };
 }
