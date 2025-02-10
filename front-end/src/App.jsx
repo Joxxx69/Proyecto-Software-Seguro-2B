@@ -3,7 +3,7 @@ import "./App.css";
 import { Dashboard } from "./components/Dashboard/Dashboard";
 import { PageNotFound } from "./components/PageNotFound/PageNotFound";
 import { Login } from "./components/Login/Login";
-import { LayoutWithSidebar } from "./components/LayoutWithSideBar";
+import { Layout } from "./components/Layout";
 import { RecuperarContrasena } from "./components/RecuperarContrasena/RecuperarContrasena";
 import { AuthGuard } from "./components/Login/AuthGuard";
 import PersonalData from "./components/PersonalData/PersonalData";
@@ -23,7 +23,7 @@ function App() {
           path="/*"
           element={
             <AuthGuard>
-              <LayoutWithSidebar />
+              <Layout />
             </AuthGuard>
           }>
           <Route path="" element={<Dashboard />} />
