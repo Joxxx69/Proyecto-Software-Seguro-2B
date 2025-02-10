@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getPersonalData, getARCORequests, updateARCORequest } from "../services/personal-data/personalDataService";
+import { getPersonalData, getARCORequests, updateARCORequest, updatePersonalData, createPersonalData, deletePersonalData } from "../services/personal-data/personalDataService";
 
 
 export const usePersonalData = (userId, role) => {
@@ -36,6 +36,24 @@ export const usePersonalData = (userId, role) => {
     }
   };
 
+  const createUserPersonalData = async (personalData) => {
+    try {
+      await createPersonalData(personalData);
+      fetchPersonalData(personalData.titularId);
+    } catch (error) {
+      console.error("Error creando datos personales", error);
+    }
+  };
+
+  const deleteUserPersonalData = async (id) => {
+    try {
+      await deletePersonalData(id);
+      setPersonalData(null); // Se eliminan los datos de la vista
+    } catch (error) {
+      console.error("Error eliminando datos personales", error);
+    }
+  };
+
   const approveOrRejectARCO = async (id, estado) => {
     try {
       await updateARCORequest(id, estado);
@@ -46,14 +64,23 @@ export const usePersonalData = (userId, role) => {
   };
 
     // ✅ Función para actualizar datos personales
-    const updateUserPersonalData = async (id, updateDto) => {
+    const updateUserPersonalData = async (titular_id ,id, updateDto) => {
       try {
         await updatePersonalData(id, updateDto);
-        fetchPersonalData(id); // Refrescar los datos después de actualizar
+        fetchPersonalData(titular_id); // Refrescar los datos después de actualizar
       } catch (error) {
         console.error("Error actualizando datos personales", error);
       }
     };
 
-  return { personalData, arcoRequests, loading, approveOrRejectARCO, updateUserPersonalData };
+    return { 
+      personalData, 
+      arcoRequests, 
+      loading, 
+      approveOrRejectARCO, 
+      updateUserPersonalData, 
+      deleteUserPersonalData,  // 🔹 Agregado aquí
+      createUserPersonalData   // 🔹 Agregado también
+    };
+  
 };
