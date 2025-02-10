@@ -25,6 +25,25 @@ export const consentService = {
         }
     },
 
+    getAllByTitular: async () => {
+        try {
+            const accessToken = getToken('accessToken');
+            if (!accessToken) {
+                throw new Error('No se encontró token de acceso');
+            }
+
+            const response = await axios.get(`${API_URL}/find-by-titular`, {
+                headers: {
+                    Authorization: `Bearer ${accessToken}`, 
+                },
+            });
+            return response.data; 
+        } catch (error) {
+            console.error("Error al obtener consentimientos", error);
+            throw error; 
+        }
+    },
+
     // Revocar un consentimiento
     revokeConsent: async (consentId) => {
         try {

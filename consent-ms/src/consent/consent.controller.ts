@@ -31,9 +31,9 @@ export class ConsentController {
   }
 
   @MessagePattern('consent.findByTitular')
-  async findByTitular(@Payload() titularId: string): Promise<Consent[]> {
-    this.logger.log(`Buscando consentimientos del titular: ${titularId}`);
-    return await this.consentService.findByTitular(titularId);
+  async findByTitular(@Payload() data: { id: string }): Promise<Consent[]> {
+  this.logger.log(`Buscando consentimientos del titular: ${data.id}`);
+  return await this.consentService.findByTitular(data.id);
   }
 
   @MessagePattern('consent.update')

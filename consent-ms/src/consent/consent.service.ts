@@ -95,7 +95,7 @@ export class ConsentService extends PrismaClient {
   async findByTitular(titularId: string): Promise<any[]> {
     try {
       const consents = await this.consent.findMany({
-        where: { titularId, estado: 'ACTIVO' }, // Solo devuelve consentimientos activos del titular
+        where: { titularId}, 
       });
 
       this.logger.log(`Encontrados ${consents.length} consentimientos para el titular: ${titularId}`);

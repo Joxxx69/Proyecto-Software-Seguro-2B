@@ -1,10 +1,34 @@
 import React, { useState } from "react";
 import { useConsent } from "../../hooks/useConsent";
+import { useAuth } from "../../hooks/useAuth";
 
 export const Consent = () => {
   const { consents, loading, revokeConsent, approveConsent, rejectConsent, updateRevokeDate } = useConsent();
+  const { user, roles } = useAuth();
   const [editingRevokeDate, setEditingRevokeDate] = useState(null);
   const [revokeDate, setRevokeDate] = useState("");
+  const [selectedFinalidad, setSelectedFinalidad] = useState(""); // Estado para la finalidad seleccionada
+
+  // Lista de finalidades disponibles
+  const finalidades = [
+    "REGISTRO_AUTENTICACION",
+    "PRESTACION_SERVICIO",
+    "GESTION_PAGOS",
+    "SEGURIDAD_PREVENCION_FRAUDE",
+    "PUBLICIDAD_PERSONALIZADA",
+    "ANALISIS_MEJORA_SERVICIO",
+    "PERSONALIZACION_CONTENIDO",
+    "INTEGRACION_TERCEROS",
+    "CUMPLIMIENTO_LEGAL",
+    "GESTION_DERECHOS_USUARIO",
+    "ENVIO_NOTIFICACIONES",
+    "GESTION_SOPORTE_TECNICO",
+  ];
+
+  // Filtra los consentimientos según la finalidad seleccionada
+  const filteredConsents = selectedFinalidad
+    ? consents.filter((consent) => consent.finalidades.includes(selectedFinalidad))
+    : consents;
 
   if (loading) {
     return (
@@ -60,10 +84,34 @@ export const Consent = () => {
   return (
     <div className="w-full bg-white rounded-lg shadow">
       <div className="p-6 border-b border-gray-200">
-        <h2 className="text-2xl font-bold text-gray-900">Gestión de Consentimientos</h2>
+        <h2 className="text-2xl font-bold text-gray-900">
+          {roles.includes("ADMIN_ROLE") ? 'Gestión de Consentimientos (Admin)' : 'Mis Consentimientos'}
+        </h2>
+        {/* Selector de filtro para administradores */}
+        {roles.includes("ADMIN_ROLE") && (
+          <div className="mt-4">
+            <label htmlFor="finalidad" className="block text-sm font-medium text-gray-700">
+              Filtrar por finalidad
+            </label>
+            <select
+              id="finalidad"
+              name="finalidad"
+              className="mt-1 block w-full pl-3 pr-10 py-2 text-base border-gray-300 focus:outline-none focus:ring-indigo-500 focus:border-indigo-500 sm:text-sm rounded-md"
+              value={selectedFinalidad}
+              onChange={(e) => setSelectedFinalidad(e.target.value)}
+            >
+              <option value="">Todas las finalidades</option>
+              {finalidades.map((finalidad) => (
+                <option key={finalidad} value={finalidad}>
+                  {finalidad}
+                </option>
+              ))}
+            </select>
+          </div>
+        )}
       </div>
       <div className="p-6">
-        {consents.length === 0 ? (
+        {filteredConsents.length === 0 ? (
           <div className="text-center py-8">
             <svg className="mx-auto h-12 w-12 text-gray-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
               <path strokeLinecap="round" strokeLinejoin="round" strokeWidth="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-3L13.732 4c-.77-1.333-2.694-1.333-3.464 0L3.34 16c-.77 1.333.192 3 1.732 3z" />
@@ -72,13 +120,17 @@ export const Consent = () => {
           </div>
         ) : (
           <div className="space-y-6">
-            {consents.map((consent) => (
+            {filteredConsents.map((consent) => (
               <div key={consent.id} className="bg-white rounded-lg border border-gray-200 overflow-hidden">
                 <div className="p-6">
                   <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-4">
                     <div>
                       <p className="text-sm font-medium text-gray-500">Titular</p>
-                      <p className="mt-1">{consent.titularId}</p>
+                      <p className="mt-1">
+                        {roles.includes("ADMIN_ROLE")
+                          ? `${consent.titularId} (${consent.titularNombre || 'ID'})`
+                          : consent.titularId}
+                      </p>
                     </div>
                     <div>
                       <p className="text-sm font-medium text-gray-500">Estado</p>

@@ -5,27 +5,36 @@ import { useAuth } from "./useAuth";
 export function useConsent() {
     const [consents, setConsents] = useState([]); 
     const [loading, setLoading] = useState(true); 
-    const { isAuthenticated } = useAuth(); 
+    const [error, setError] = useState(null); // Agregado para manejar errores
+    const { isAuthenticated, user } = useAuth(); 
 
     useEffect(() => {
         async function fetchConsents() {
             try {
-                setLoading(true); 
-                const data = await consentService.getAll();
-                setConsents(data); 
+                setLoading(true);
+                setError(null);
+                
+                // Determinar qué función llamar basado en el rol del usuario
+                const data = user.roles.includes('ADMIN_ROLE') 
+                    ? await consentService.getAll()
+                    : await consentService.getAllByTitular();
+
+                
+                setConsents(data);
             } catch (error) {
-                console.error("Error al obtener los consentimientos", error);
+                setError(error.message);
+                console.error("Error al obtener los consentimientos:", error);
             } finally {
-                setLoading(false); 
+                setLoading(false);
             }
         }
 
         if (isAuthenticated) {
-            fetchConsents(); 
+            fetchConsents();
         } else {
-            setLoading(false); 
+            setLoading(false);
         }
-    }, [isAuthenticated]); 
+    }, [isAuthenticated, user]);
 
     const revokeConsent = async (consentId) => {
       try {
