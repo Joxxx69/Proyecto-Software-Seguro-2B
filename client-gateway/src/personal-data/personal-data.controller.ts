@@ -22,7 +22,7 @@ export class PersonalDataController {
   // Personal Data Endpoints
   @Post('create')
   @UseGuards(AuthGuard)
-  @Roles(Role.USER_ROLE)
+  @Roles(Role.ADMIN_ROLE,Role.USER_ROLE)
   async createPersonalData(
     @Body() createDto: CreatePersonalDataDto,
     @User() user: CurrentUser

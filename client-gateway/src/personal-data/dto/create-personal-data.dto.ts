@@ -1,9 +1,10 @@
-import { IsString, IsEmail, IsOptional, IsDateString, IsNotEmpty } from 'class-validator';
+import { Transform } from 'class-transformer';
+import { IsString, IsEmail, IsOptional, IsDateString } from 'class-validator';
 
 export class CreatePersonalDataDto {
   @IsOptional()
   @IsString()
-  titularId?: string;  // Optional porque se asigna automáticamente desde el token
+  titularId?: string;
 
   @IsString()
   name: string;
@@ -23,5 +24,6 @@ export class CreatePersonalDataDto {
 
   @IsOptional()
   @IsDateString()
+  @Transform(({ value }) => value ? new Date(value) : undefined)
   retentionTime?: Date;
 }
