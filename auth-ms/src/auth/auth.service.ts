@@ -12,6 +12,7 @@ import { firstValueFrom, timeout, TimeoutError } from "rxjs";
 import { ChangePasswordDto } from "./dto/change-password.dto";
 import { ForgotPasswordDto } from "./dto/forgot-password.dto";
 import { ResetPasswordDto } from './dto/reset-password.dto';
+import { NivelRiesgo, TipoEvento } from "./enums/audit.enum";
 
 @Injectable()
 export class AuthService extends PrismaClient implements OnModuleInit {
@@ -235,11 +236,11 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             const { roles, id } = newUser;
             const tokens = await this.generateTokens({ id, roles })
             const auditLog = {
-                evento: 'Registro de usuario',
+                evento: TipoEvento.ACCESO,
                 usuarioId: id,
                 entidadAfectada: 'Microservicio de Autenticacion',
                 detalles: `Registro de usuario en  el sistema ${new Date()}`,
-                nivelRiesgo: 'BAJO',
+                nivelRiesgo: NivelRiesgo.BAJO,
             }
             await firstValueFrom(
                  this.client.send('audit.log.create', auditLog)
@@ -272,11 +273,11 @@ export class AuthService extends PrismaClient implements OnModuleInit {
                 this.client.send('update.user',{id,updateUserDto:{lastLogin:new Date()}}).pipe(timeout(5000))
             )
             const auditLog = {
-                evento: 'ACCESO',
+                evento: TipoEvento.ACCESO,
                 usuarioId: id,
                 entidadAfectada: 'Microservicio de Autenticacion',
                 detalles: `Ingreso al sistema ${new Date()}`,
-                nivelRiesgo: 'BAJO',
+                nivelRiesgo: NivelRiesgo.BAJO,
                 ipAddress: loginUserDto.ipAddress,
 
             }
@@ -332,11 +333,11 @@ export class AuthService extends PrismaClient implements OnModuleInit {
 
             await this.revokeAllUserTokens(userId);
             const auditLog = {
-                evento: 'CAMBIO DE CONTRASENA',
+                evento: TipoEvento.MODIFICACION,
                 usuarioId: userId,
                 entidadAfectada: 'Microservicio de Autenticacion',
                 detalles: `Cambio de contrasena en  el sistema ${new Date()}`,
-                nivelRiesgo: 'ALTO',
+                nivelRiesgo: NivelRiesgo.ALTO,
 
             }
             await firstValueFrom(

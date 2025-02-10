@@ -83,8 +83,8 @@ export class ConsentController {
     );
   }
 
-  @MessagePattern('find.all.auth.logs')
-  findAllAuthLogs( ) {
-    return this.consentService.findAllAuthLogs();
+  @MessagePattern('consent.find.all.consent.logs')
+  findAllConsentLogs( ) {
+    return this.consentService.findAllConsentLogs();
   }
 }

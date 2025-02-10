@@ -1,15 +1,16 @@
 import React, { useState } from "react";
 import { useConsent } from "../../hooks/useConsent";
 import { useAuth } from "../../hooks/useAuth";
+import { useNavigate } from "react-router-dom"; // Importa useNavigate para redireccionar
 
 export const Consent = () => {
   const { consents, loading, revokeConsent, approveConsent, rejectConsent, updateRevokeDate } = useConsent();
   const { user, roles } = useAuth();
   const [editingRevokeDate, setEditingRevokeDate] = useState(null);
   const [revokeDate, setRevokeDate] = useState("");
-  const [selectedFinalidad, setSelectedFinalidad] = useState(""); // Estado para la finalidad seleccionada
+  const [selectedFinalidad, setSelectedFinalidad] = useState("");
+  const navigate = useNavigate(); // Hook para redireccionar
 
-  // Lista de finalidades disponibles
   const finalidades = [
     "REGISTRO_AUTENTICACION",
     "PRESTACION_SERVICIO",
@@ -25,7 +26,6 @@ export const Consent = () => {
     "GESTION_SOPORTE_TECNICO",
   ];
 
-  // Filtra los consentimientos según la finalidad seleccionada
   const filteredConsents = selectedFinalidad
     ? consents.filter((consent) => consent.finalidades.includes(selectedFinalidad))
     : consents;
@@ -87,6 +87,23 @@ export const Consent = () => {
         <h2 className="text-2xl font-bold text-gray-900">
           {roles.includes("ADMIN_ROLE") ? 'Gestión de Consentimientos (Admin)' : 'Mis Consentimientos'}
         </h2>
+        {/* Botón para crear nuevo consentimiento (solo para admin) */}
+        {roles.includes("ADMIN_ROLE") && (
+          <button
+          className="inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-blue-600 hover:bg-blue-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-blue-500"
+          onClick={() => navigate("/consentLogs")}
+        >
+          Ver Logs
+        </button>
+        )}
+        {roles.includes("ADMIN_ROLE") && (
+          <button
+            className="mt-4 inline-flex items-center px-4 py-2 border border-transparent text-sm font-medium rounded-md text-white bg-indigo-600 hover:bg-indigo-700 focus:outline-none focus:ring-2 focus:ring-offset-2 focus:ring-indigo-500"
+            onClick={() => navigate("/create-consent")} // Redirige a la pantalla de creación
+          >
+            Crear Nuevo Consentimiento
+          </button>
+        )}
         {/* Selector de filtro para administradores */}
         {roles.includes("ADMIN_ROLE") && (
           <div className="mt-4">
