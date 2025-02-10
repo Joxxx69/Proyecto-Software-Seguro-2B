@@ -234,6 +234,16 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             )
             const { roles, id } = newUser;
             const tokens = await this.generateTokens({ id, roles })
+            const auditLog = {
+                evento: 'Registro de usuario',
+                usuarioId: id,
+                entidadAfectada: 'Microservicio de Autenticacion',
+                detalles: `Registro de usuario en  el sistema ${new Date()}`,
+                nivelRiesgo: 'BAJO',
+            }
+            await firstValueFrom(
+                 this.client.send('audit.log.create', auditLog)
+            )
             return { user: { id, roles }, ...tokens }
 
         } catch (error) {
@@ -321,6 +331,17 @@ export class AuthService extends PrismaClient implements OnModuleInit {
             )
 
             await this.revokeAllUserTokens(userId);
+            const auditLog = {
+                evento: 'CAMBIO DE CONTRASENA',
+                usuarioId: userId,
+                entidadAfectada: 'Microservicio de Autenticacion',
+                detalles: `Cambio de contrasena en  el sistema ${new Date()}`,
+                nivelRiesgo: 'ALTO',
+
+            }
+            await firstValueFrom(
+                 this.client.send('audit.log.create', auditLog)
+            )
             return {
                 message: 'Password changed successfully',
                 ...updatedUser
