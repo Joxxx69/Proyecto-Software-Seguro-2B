@@ -8,6 +8,7 @@ import { RecuperarContrasena } from "./components/RecuperarContrasena/RecuperarC
 import { AuthGuard } from "./components/Login/AuthGuard";
 import PersonalData from "./components/PersonalData/PersonalData";
 import { Consent } from "./components/Consent/Consent";
+import { CreateConsent } from "./components/Consent/CreateConsent";
 import { Transparency } from "./components/Transparency/Transparency";
 import Audit from "./components/Audit/Audit";
 import {Register } from "./components/Register/Register";
@@ -51,6 +52,14 @@ function App() {
             element={
               <AuthGuard allowedRoles={["ADMIN_ROLE"]}>
                 <SolicitudesArco/>
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="create-consent"
+            element={
+              <AuthGuard allowedRoles={["ADMIN_ROLE"]}>
+                <CreateConsent/>
               </AuthGuard>
             }
           />
