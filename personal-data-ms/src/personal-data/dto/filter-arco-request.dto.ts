@@ -1,5 +1,5 @@
-import { IsDateString, IsEnum, IsOptional, IsString } from 'class-validator';
-import { EstadoARCO, TipoARCO } from '@prisma/client';
+import { IsDateString, IsEnum, IsOptional, IsString } from "class-validator";
+import { ArcoStatus, TipoArco } from "../enums/personalData.enum";
 
 export class FilterARCORequestDto {
   @IsOptional()
@@ -7,18 +7,18 @@ export class FilterARCORequestDto {
   titularId?: string;
 
   @IsOptional()
-  @IsEnum(TipoARCO)
-  tipo?: TipoARCO;
+  @IsEnum(TipoArco)
+  tipo?: TipoArco;
 
   @IsOptional()
-  @IsEnum(EstadoARCO)
-  estado?: EstadoARCO;
-
-  @IsOptional()
-  @IsDateString()
-  fechaDesde?: Date;
+  @IsEnum(ArcoStatus)
+  status?: ArcoStatus;
 
   @IsOptional()
   @IsDateString()
-  fechaHasta?: Date;
+  dateFrom?: string;
+
+  @IsOptional()
+  @IsDateString()
+  dateTo?: string;
 }

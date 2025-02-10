@@ -1,24 +1,21 @@
-export enum BaseLegal {
-    CONSENTIMIENTO = "CONSENTIMIENTO",
-    CONTRATO = "CONTRATO",
-    INTERES_PUBLICO = "INTERES_PUBLICO",
-    OBLIGACION_LEGAL = "OBLIGACION_LEGAL"
-};
+export enum TipoSensible {
+  SALUD = 'SALUD',
+  BIOMETRICO = 'BIOMETRICO',
+  GENETICO = 'GENETICO',
+  IDEOLOGIA = 'IDEOLOGIA',
+  RELIGION = 'RELIGION',
+  ORIENTACION_SEXUAL = 'ORIENTACION_SEXUAL',
+  ETNIA = 'ETNIA'
+}
 
-export enum CategoriaData {
-    GENERAL = "GENERAL",
-    SALUD = "SALUD",
-    BIOMETRICOS = "BIOMETRICOS",
-    MENORES = "MENORES",
-    JUDICIAL = "JUDICIAL"
-};
+// src/personal-data/enums/tipo-arco.enum.ts
+export enum TipoArco {
+  ACCESO = 'ACCESO',
+  RECTIFICACION = 'RECTIFICACION',
+  CANCELACION = 'CANCELACION',
+  OPOSICION = 'OPOSICION'
+}
 
-export enum TipoARCO {
-    ACCESO = "ACCESO",
-    RECTIFICACION = "RECTIFICACION",
-    CANCELACION = "CANCELACION",
-    OPOSICION = "OPOSICION"
-  }
   
 export enum EstadoARCO {
     PENDIENTE = "PENDIENTE",

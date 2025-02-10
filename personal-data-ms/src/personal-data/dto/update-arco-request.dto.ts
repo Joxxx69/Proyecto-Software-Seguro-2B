@@ -1,11 +1,12 @@
-import { IsEnum, IsOptional, IsString } from 'class-validator';
-import { EstadoARCO } from '@prisma/client';
+import { IsEnum, IsString, IsOptional } from 'class-validator';
+import { ArcoStatus } from '../enums/personalData.enum';
+
 
 export class UpdateARCORequestDto {
-  @IsEnum(EstadoARCO)
-  estado: EstadoARCO;
+  @IsEnum(ArcoStatus)
+  status: ArcoStatus;
 
   @IsOptional()
   @IsString()
-  motivoRechazo?: string;
+  rejectReason?: string;
 }
