@@ -1,39 +1,27 @@
-// create-personal-data.dto.ts
-import { IsString, IsObject, IsEnum, IsNotEmpty, IsUUID, IsArray, IsOptional, ValidateNested } from 'class-validator';
-import { Type } from 'class-transformer';
-import { BaseLegal, CategoriaData } from '../enums/personalData.enum';
-
-export class CreateDataTransferDto {
-  @IsString()
-  @IsNotEmpty()
-  destinatario: string;
-
-  @IsString()
-  @IsNotEmpty()
-  finalidad: string;
-
-  @IsEnum(BaseLegal)
-  @IsNotEmpty()
-  baseLegal: BaseLegal;
-}
+import { IsString, IsEmail, IsOptional, IsDateString, IsNotEmpty } from 'class-validator';
 
 export class CreatePersonalDataDto {
+  @IsOptional()
   @IsString()
-  @IsNotEmpty()
-  //@IsUUID()
-  titularId: string;
+  titularId?: string;  // Optional porque se asigna automáticamente desde el token
+
+  @IsString()
+  name: string;
+
+  @IsEmail()
+  email: string;
 
   @IsOptional()
-  @IsEnum(CategoriaData)
-  categoria?: CategoriaData;
+  @IsString()
+  documentNumber?: string;
 
-  @IsObject()
-  @IsNotEmpty()
-  datosGenerales: Record<string, any>;
+  @IsString()
+  purpose: string;
 
-  @IsArray()
+  @IsString()
+  legalBasis: string;
+
   @IsOptional()
-  @ValidateNested({ each: true })
-  @Type(() => CreateDataTransferDto)
-  transferencias?: CreateDataTransferDto[];
+  @IsDateString()
+  retentionTime?: Date;
 }

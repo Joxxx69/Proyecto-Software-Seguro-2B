@@ -7,90 +7,63 @@ datasource db {
   url      = env("DATABASE_URL")
 }
 
-// Modelo principal para datos personales generales
+// Datos personales básicos
 model PersonalData {
-  id                String          @id @default(auto()) @map("_id") @db.ObjectId
-  titularId         String          @db.ObjectId 
-  datosGenerales    Json            
-  categoria         CategoriaData   @default(GENERAL)
-  fechaCreacion     DateTime        @default(now())
-  fechaActualizacion DateTime       @updatedAt
-  eliminado         Boolean         @default(false) 
-  
-  // Relaciones
-  transferencias    DataTransfer[]
-  sensitiveDatos    SensitiveData[]
-  accessLogs        DataAccessLog[]
+  id            String   @id @default(auto()) @map("_id") @db.ObjectId
+  titularId     String   @db.ObjectId
+  name          String
+  email         String
+  documentNumber String?    // Número de identificación
+  purpose       String     // Finalidad del tratamiento
+  legalBasis    String     // Base legal para el tratamiento
+  retentionTime DateTime? // Tiempo de conservación
+  isActive      Boolean  @default(true)
+  createdAt     DateTime @default(now())
+  updatedAt     DateTime @updatedAt
 
   @@index([titularId])
+  @@index([email])
 }
 
-// Modelo para datos sensibles
+// Datos sensibles
 model SensitiveData {
-  id               String       @id @default(auto()) @map("_id") @db.ObjectId
-  personalDataId   String       @db.ObjectId
-  tipo             TipoSensible
-  datos            String       // Campo cifrado
-  medidasSeguridad String[]    
-  fechaCreacion    DateTime     @default(now())
-  
-  // Relación con PersonalData
-  personalData     PersonalData @relation(fields: [personalDataId], references: [id])
+  id            String       @id @default(auto()) @map("_id") @db.ObjectId
+  titularId     String       @db.ObjectId
+  tipo          TipoSensible
+  descripcion   String       // Campo cifrado
+  purpose       String       // Finalidad específica
+  legalBasis    String       // Base legal específica
+  retentionTime DateTime? // Tiempo de conservación
+  createdAt     DateTime     @default(now())
+  updatedAt     DateTime     @updatedAt
 
-  @@index([personalDataId])
-}
-
-// Modelo para transferencias de datos
-model DataTransfer {
-  id                 String       @id @default(auto()) @map("_id") @db.ObjectId
-  personalDataId     String       @db.ObjectId
-  destinatario       String      
-  finalidad          String          
-  baseLegal          BaseLegal    
-  fechaTransferencia DateTime     @default(now())
-  
-  // Relación con PersonalData
-  personalData       PersonalData @relation(fields: [personalDataId], references: [id])
-
-  @@index([personalDataId])
-}
-
-// Modelo para solicitudes ARCO
-model ARCORequest {
-  id               String      @id @default(auto()) @map("_id") @db.ObjectId
-  titularId        String      @db.ObjectId
-  tipo             TipoARCO
-  estado           EstadoARCO  @default(PENDIENTE)
-  datosSolicitados String[]
-  fechaSolicitud   DateTime    @default(now())
-  fechaRespuesta   DateTime?
-  motivoRechazo    String?     // Nuevo campo para documentar rechazos
-  
   @@index([titularId])
 }
 
-// Modelo para auditoría
-model DataAccessLog {
-  id             String      @id @default(auto()) @map("_id") @db.ObjectId
-  personalDataId String      @db.ObjectId
-  usuarioId      String      @db.ObjectId
-  accion         AccionTipo
-  detalles       String?     // Nuevo campo para más contexto
-  fechaAcceso    DateTime    @default(now())
-  
-  // Relación con PersonalData
-  personalData   PersonalData @relation(fields: [personalDataId], references: [id])
+// Solicitudes ARCO (Acceso, Rectificación, Cancelación, Oposición)
+model ArcoRequest {
+  id            String      @id @default(auto()) @map("_id") @db.ObjectId
+  titularId     String      @db.ObjectId
+  tipo          TipoArco
+  status        ArcoStatus  @default(PENDING)
+  requestDate   DateTime    @default(now())
+  replyDate     DateTime?
+  rejectReason  String?
 
-  @@index([personalDataId])
-  @@index([usuarioId])
+  @@index([titularId])
 }
 
-enum CategoriaData {
-  GENERAL
-  SALUD
-  BIOMETRICOS
-  MENORES
-  JUDICIAL
+// Registro de auditoría
+model AuditLog {
+  id          String      @id @default(auto()) @map("_id") @db.ObjectId
+  userId      String      @db.ObjectId
+  dataType    DataType
+  action      AuditAction
+  changes     Json?
+  createdAt   DateTime    @default(now())
+
+  @@index([userId])
+  @@index([createdAt])
 }
 
 enum TipoSensible {
@@ -99,30 +72,31 @@ enum TipoSensible {
   GENETICO
   IDEOLOGIA
   RELIGION
+  ORIENTACION_SEXUAL
+  ETNIA
 }
 
-enum TipoARCO {
+enum TipoArco {
   ACCESO
   RECTIFICACION
   CANCELACION
   OPOSICION
 }
 
-enum EstadoARCO {
-  PENDIENTE
-  COMPLETADO
-  RECHAZADO
+enum ArcoStatus {
+  PENDING
+  COMPLETED
+  REJECTED
 }
 
-enum BaseLegal {
-  CONSENTIMIENTO
-  CONTRATO
-  INTERES_PUBLICO
-  OBLIGACION_LEGAL
+enum DataType {
+  PERSONAL_DATA
+  SENSITIVE_DATA
 }
 
-enum AccionTipo {
-  LECTURA
-  MODIFICACION
-  ELIMINACION
+enum AuditAction {
+  CREATE
+  READ
+  UPDATE
+  DELETE
 }

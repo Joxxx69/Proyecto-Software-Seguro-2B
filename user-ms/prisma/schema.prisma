@@ -33,6 +33,7 @@ model User {
 enum Role {
   USER_ROLE
   ADMIN_ROLE
+  AUDIT_ROLE
 }
 
 enum Gender {
