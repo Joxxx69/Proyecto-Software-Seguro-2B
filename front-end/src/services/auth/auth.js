@@ -154,3 +154,31 @@ export const resetPassword = async (code, newPassword) => {
         throw error;
     }
 };
+
+export const registerUser = async (name, email, password) => {
+    try {
+        const body = { name, email, password };
+        const response = await axios.post('api/auth/register', body, {
+            headers: { 'Content-Type': 'application/json' }
+        });
+
+        return response.data; // Retorna los datos del usuario registrado
+    } catch (error) {
+        console.error('Error al registrar usuario:', error);
+
+        if (error.response) {
+            switch (error.response.status) {
+                case 400:
+                    throw new Error('Datos inválidos');
+                case 409:
+                    throw new Error('El correo electrónico ya está en uso');
+                case 500:
+                    throw new Error('Error en el servidor al registrar usuario');
+                default:
+                    throw new Error(error.response.data.message || 'Error desconocido');
+            }
+        } else {
+            throw new Error('No se pudo conectar con el servidor.');
+        }
+    }
+};

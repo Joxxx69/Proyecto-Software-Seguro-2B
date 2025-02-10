@@ -10,12 +10,16 @@ import PersonalData from "./components/PersonalData/PersonalData";
 import { Consent } from "./components/Consent/Consent";
 import { Transparency } from "./components/Transparency/Transparency";
 import Audit from "./components/Audit/Audit";
+import {Register } from "./components/Register/Register";
+import {SolicitudesArco}  from "./components/PersonalData/SolicitudesArco";
+
 
 function App() {
   return (
     <Router>
       <Routes>
         <Route path="/login" element={<Login />} />
+        <Route path="/register" element={<Register/>} />
         <Route path="/recuperar-contrasena" element={<RecuperarContrasena />} />
         <Route path="*" element={<PageNotFound />} />
 
@@ -39,6 +43,14 @@ function App() {
             element={
               <AuthGuard allowedRoles={["ADMIN_ROLE"]}>
                 <Audit />
+              </AuthGuard>
+            }
+          />
+          <Route
+            path="solicitudes_arco"
+            element={
+              <AuthGuard allowedRoles={["ADMIN_ROLE"]}>
+                <SolicitudesArco/>
               </AuthGuard>
             }
           />

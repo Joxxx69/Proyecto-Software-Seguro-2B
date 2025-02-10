@@ -1,11 +1,8 @@
 import React from "react";
 import { Link, useLocation } from "react-router-dom";
-import {
-  TbHome,
-  TbWeight,
-  TbUsers,
-  TbShieldCheck
-} from "react-icons/tb";
+import { TbHome, TbWeight, TbUsers, TbShieldCheck } from "react-icons/tb";
+import { useAuth } from "../hooks/useAuth";
+
 
 const NavItem = ({ Icon, title, to }) => {
   const location = useLocation();
@@ -28,15 +25,27 @@ const NavItem = ({ Icon, title, to }) => {
 };
 
 export const RouteSelect = () => {
+  const { user } = useAuth(); // Obtener usuario y roles
+
+  if (!user) return null; // ⚠️ Evita mostrar opciones antes de obtener datos
+
   return (
     <nav className="w-full flex justify-between bg-white shadow-md px-6 py-3">
       <div className="flex gap-4">
         <NavItem Icon={TbHome} title="Inicio" to="/" />
-        <NavItem Icon={TbUsers} title="Datos Personales" to="/personal-data" />
+
+        {user.roles.includes("ADMIN_ROLE") && (
+          <NavItem Icon={TbShieldCheck} title="Solicitudes ARCO" to="/solicitudes_arco" />
+        )}
         <NavItem Icon={TbWeight} title="Consentimiento" to="/consent" />
-        <NavItem Icon={TbShieldCheck} title="Auditorías" to="/audit" />
+
+        {/* ✅ Solo ADMIN_ROLE puede ver "Auditorías" */}
+        {user.roles.includes("ADMIN_ROLE") && (
+          <NavItem Icon={TbShieldCheck} title="Auditorías" to="/audit" />
+        )}
       </div>
     </nav>
   );
 };
+
 

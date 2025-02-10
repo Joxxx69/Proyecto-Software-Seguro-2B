@@ -45,5 +45,15 @@ export const usePersonalData = (userId, role) => {
     }
   };
 
-  return { personalData, arcoRequests, loading, approveOrRejectARCO };
+    // ✅ Función para actualizar datos personales
+    const updateUserPersonalData = async (id, updateDto) => {
+      try {
+        await updatePersonalData(id, updateDto);
+        fetchPersonalData(id); // Refrescar los datos después de actualizar
+      } catch (error) {
+        console.error("Error actualizando datos personales", error);
+      }
+    };
+
+  return { personalData, arcoRequests, loading, approveOrRejectARCO, updateUserPersonalData };
 };
