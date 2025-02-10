@@ -224,6 +224,15 @@ export const Login = () => {
                 disabled={loadingLogin || blocked}>
                 {loadingLogin ? "Cargando..." : blocked ? `Espera ${timer}s` : "Iniciar Sesión"}
               </button>
+
+              <button
+                type="button"
+                className={`bg-azul-marino-500 hover:bg-azul-marino-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                  blocked ? "opacity-50 cursor-not-allowed" : ""
+                }`}
+                onClick={() => navigate("/register")}>
+                Registrarse
+              </button>
             </div>
           </form>
         </div>
