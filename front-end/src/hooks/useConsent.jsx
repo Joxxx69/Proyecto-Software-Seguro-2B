@@ -5,27 +5,32 @@ import { useAuth } from "./useAuth";
 export function useConsent() {
     const [consents, setConsents] = useState([]); 
     const [loading, setLoading] = useState(true); 
-    const { isAuthenticated } = useAuth(); 
+    const { isAuthenticated, user } = useAuth(); 
 
     useEffect(() => {
         async function fetchConsents() {
-            try {
-                setLoading(true); 
-                const data = await consentService.getAll();
-                setConsents(data); 
-            } catch (error) {
-                console.error("Error al obtener los consentimientos", error);
-            } finally {
-                setLoading(false); 
+          try {
+            setLoading(true);
+            // Verifica que user y user.id existan
+            if (!user?.id) {
+              console.error("ID de usuario no disponible");
+              return;
             }
+            const data = await consentService.getAllByTitular(user.id);
+            setConsents(data);
+          } catch (error) {
+            console.error("Error al obtener los consentimientos", error);
+          } finally {
+            setLoading(false);
+          }
         }
-
-        if (isAuthenticated) {
-            fetchConsents(); 
+    
+        if (isAuthenticated && user?.id) {
+          fetchConsents();
         } else {
-            setLoading(false); 
+          setLoading(false);
         }
-    }, [isAuthenticated]); 
+      }, [isAuthenticated, user]);  
 
     const revokeConsent = async (consentId) => {
       try {

@@ -24,9 +24,8 @@ export class ConsentController {
   @UseGuards(AuthGuard)
   @Roles(Role.ADMIN_ROLE)
   @Post('create')
-  async create(@Body() createConsentDto: CreateConsentDto, @User() user: CurrentUser) {
+  async create(@Body() createConsentDto: CreateConsentDto) {
     try {
-      createConsentDto.titularId=user.id
       return await firstValueFrom(
         this.client.send('consent.create', createConsentDto)
       );
@@ -55,9 +54,10 @@ export class ConsentController {
   @Get('find-by-titular')
   async findByTitular(@User() user: CurrentUser) {
     try {
-      return await firstValueFrom(
-        this.client.send('consent.findByTitular', user.id)
+      const response = await firstValueFrom(
+        this.client.send('consent.findByTitular', { id: user.id })
       );
+      return response;
     } catch (error) {
       throw new RpcException(error);
     }
