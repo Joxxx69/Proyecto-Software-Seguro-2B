@@ -1,5 +1,5 @@
 import { useState, useEffect } from "react";
-import { getPersonalData, getARCORequests, updateARCORequest, updatePersonalData, createPersonalData, deletePersonalData } from "../services/personal-data/personalDataService";
+import { getPersonalData, getARCORequests, updateARCORequest, updatePersonalData, createPersonalData, deletePersonalData, getUserARCORequests, createARCORequest } from "../services/personal-data/personalDataService";
 
 
 export const usePersonalData = (userId, role) => {
@@ -73,6 +73,66 @@ export const usePersonalData = (userId, role) => {
       }
     };
 
+    const fetchUserARCORequests = async () => {
+      try {
+        const data = await getUserARCORequests();
+        setArcoRequests(data.data);
+      } catch (error) {
+        console.error("Error obteniendo solicitudes ARCO", error);
+      } finally {
+        setLoading(false);
+      }
+    };
+  
+    const createUserARCORequest = async (requestData) => {
+      try {
+        await createARCORequest(requestData);
+        fetchUserARCORequests();
+      } catch (error) {
+        console.error("Error creando solicitud ARCO", error);
+      }
+    };
+  
+    const updateUserARCORequest = async (id, updateData) => {
+      try {
+        await updateARCORequest(id, updateData);
+        fetchUserARCORequests();
+      } catch (error) {
+        console.error("Error actualizando solicitud ARCO", error);
+      }
+    };
+
+    // ✅ Actualizar estado de una solicitud ARCO (Admin)
+    const updateARCORequest = async (id, status, rejectReason = null) => {
+      try {
+        const token = getToken("accessToken");
+        if (!token) throw new Error("No autorizado: Token no encontrado.");
+
+        console.log(`🟢 Actualizando solicitud ARCO ${id} a estado ${status}`);
+
+        const response = await api.patch(`/personal-data/arco/${id}`, 
+          rejectReason ? { status, rejectReason } : { status }, 
+          { headers: { Authorization: `Bearer ${token}` } }
+        );
+
+        console.log("✅ Solicitud ARCO actualizada:", response.data);
+        return response.data;
+      } catch (error) {
+        console.error("❌ Error actualizando solicitud ARCO:", error);
+        throw error;
+      }
+    };
+
+    const updateARCOStatus = async (id, status, rejectReason = null) => {
+        try {
+          await updateARCORequest(id, status, rejectReason);
+          fetchARCORequests(); // Refrescar la lista
+        } catch (error) {
+          console.error("Error actualizando estado de solicitud ARCO", error);
+        }
+      };
+
+
     return { 
       personalData, 
       arcoRequests, 
@@ -80,7 +140,8 @@ export const usePersonalData = (userId, role) => {
       approveOrRejectARCO, 
       updateUserPersonalData, 
       deleteUserPersonalData,  // 🔹 Agregado aquí
-      createUserPersonalData   // 🔹 Agregado también
+      createUserPersonalData,
+      createUserARCORequest, updateUserARCORequest , updateARCORequest, updateARCOStatus // 🔹 Agregado también
     };
   
 };

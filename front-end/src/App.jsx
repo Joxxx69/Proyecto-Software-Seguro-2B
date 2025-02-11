@@ -14,6 +14,7 @@ import { Transparency } from "./components/Transparency/Transparency";
 import Audit from "./components/Audit/Audit";
 import {Register } from "./components/Register/Register";
 import {SolicitudesArco}  from "./components/PersonalData/SolicitudesArco";
+import {SolicitudesUsuario} from "./components/PersonalData/SolicitudesUsuario";
 
 
 function App() {
@@ -72,6 +73,8 @@ function App() {
               </AuthGuard>
             }
           />
+          <Route path="mis-solicitudes" element={<SolicitudesUsuario />} />
+
         </Route>
       </Routes>
     </Router>

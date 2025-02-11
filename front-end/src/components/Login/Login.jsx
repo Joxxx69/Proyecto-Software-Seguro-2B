@@ -224,20 +224,28 @@ export const Login = () => {
               </a>
             </div>
 
-            <div className="flex items-center justify-center">
-              <button type="submit" disabled={loadingLogin || blocked}>
-                {loadingLogin ? "Cargando..." : blocked ? `Espera ${timer}s` : "Iniciar Sesión"}
-              </button>
+            <div className="flex items-center justify-between w-full mt-4">
+            {/* Botón de inicio de sesión */}
+            <button
+              type="submit"
+              className={`bg-green-500 hover:bg-green-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
+                blocked ? "opacity-50 cursor-not-allowed" : ""
+              }`}
+              disabled={loadingLogin || blocked}
+            >
+              {loadingLogin ? "Cargando..." : blocked ? `Espera ${timer}s` : "Iniciar Sesión"}
+            </button>
 
-              <button
-                type="button"
-                className={`bg-azul-marino-500 hover:bg-azul-marino-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline ${
-                  blocked ? "opacity-50 cursor-not-allowed" : ""
-                }`}
-                onClick={() => navigate("/register")}>
-                Registrarse
-              </button>
-            </div>
+            {/* Botón de registro */}
+            <button
+              type="button"
+              className="bg-azul-marino-500 hover:bg-azul-marino-700 text-white font-bold py-2 px-4 rounded focus:outline-none focus:shadow-outline"
+              onClick={() => navigate("/register")}
+            >
+              Registrarse
+            </button>
+          </div>
+
           </form>
         </div>
       </div>

@@ -140,13 +140,65 @@ export const getARCORequests = async () => {
     }
   }
 };
-// Actualizar estado de una solicitud ARCO (aprobación o rechazo)
-export const updateARCORequest = async (id, estado) => {
+// ✅ Obtener solicitudes ARCO del usuario autenticado
+export const getUserARCORequests = async () => {
   try {
-    const response = await api.patch(`/personal-data/AR/${id}`, { estado });
+    const token = getToken("accessToken");
+    if (!token) throw new Error("No autorizado: Token no encontrado.");
+
+    console.log("🟢 Obteniendo solicitudes ARCO del usuario...");
+    
+    const response = await api.get(`/personal-data/user/arco-requests`, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("✅ Solicitudes ARCO del usuario:", response.data);
     return response.data;
   } catch (error) {
-    console.error("Error actualizando solicitud ARCO", error);
+    console.error("❌ Error obteniendo solicitudes ARCO:", error);
+    throw error;
+  }
+};
+
+// ✅ Crear nueva solicitud ARCO
+export const createARCORequest = async (requestData) => {
+  try {
+    const token = getToken("accessToken");
+    if (!token) throw new Error("No autorizado: Token no encontrado.");
+
+    const decodedToken = jwtDecode(token);
+    const titularId = decodedToken.id; // Se obtiene el titularId del token
+
+    console.log("🟢 Creando solicitud ARCO con titularId:", titularId);
+
+    const response = await api.post(`/personal-data/arco`, { ...requestData, titularId }, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("✅ Solicitud ARCO creada:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error al crear solicitud ARCO:", error);
+    throw error;
+  }
+};
+
+// ✅ Actualizar solicitud ARCO existente
+export const updateARCORequest = async (id, updateData) => {
+  try {
+    const token = getToken("accessToken");
+    if (!token) throw new Error("No autorizado: Token no encontrado.");
+
+    console.log("🟢 Actualizando solicitud ARCO con ID:", id);
+
+    const response = await api.patch(`/personal-data/arco/${id}`, updateData, {
+      headers: { Authorization: `Bearer ${token}` },
+    });
+
+    console.log("✅ Solicitud ARCO actualizada:", response.data);
+    return response.data;
+  } catch (error) {
+    console.error("❌ Error al actualizar solicitud ARCO:", error);
     throw error;
   }
 };

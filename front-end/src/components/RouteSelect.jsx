@@ -43,6 +43,10 @@ export const RouteSelect = () => {
         {user.roles.includes("ADMIN_ROLE") && (
           <NavItem Icon={TbShieldCheck} title="Auditorías" to="/audit" />
         )}
+        {user.roles.includes("USER_ROLE") && (
+          <NavItem Icon={TbUsers} title="Solicitudes ARCO" to="/mis-solicitudes" />
+        )}
+
       </div>
     </nav>
   );
